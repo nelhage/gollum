@@ -23,7 +23,8 @@ func (s *String) isValue() {}
 
 // NativeFunction is a built-in implemented in the runtime
 type NativeFunction struct {
-	Func func([]Value) (Value, error)
+	Arity int
+	Func  func([]Value) (Value, error)
 }
 
 func (n *NativeFunction) isValue() {}

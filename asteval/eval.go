@@ -70,6 +70,11 @@ func evalFunc(fn Value, argv []Value, e *Environment) (Value, error) {
 		e := f.Env.Extend(f.Args, argv)
 		return Eval(f.Body, e)
 	case *NativeFunction:
+		if f.Arity >= 0 {
+			if len(argv) != f.Arity {
+				return nil, ArityError{fn, f.Arity, argv}
+			}
+		}
 		return f.Func(argv)
 	default:
 		return nil, TypeError{fn, "function"}
