@@ -12,17 +12,20 @@ var globalEnv *Environment
 func init() {
 	globalFuncs := []struct {
 		name string
-		fn   func(Value) (Value, error)
+		fn   func([]Value) (Value, error)
 	}{
-		{"die", func(Value) (Value, error) { panic("die") }},
-		{"hello", func(v Value) (Value, error) {
+		// TODO: arity-checking
+		{"die", func([]Value) (Value, error) { panic("die") }},
+		{"hello", func(vs []Value) (Value, error) {
+			v := vs[0]
 			if s := v.(*String); s != nil {
 				return &String{"Hello, " + s.Val}, nil
 			}
 			return nil, TypeError{v, "string"}
 		},
 		},
-		{"not", func(v Value) (Value, error) {
+		{"not", func(vs []Value) (Value, error) {
+			v := vs[0]
 			if b := v.(*Boolean); b != nil {
 				return &Boolean{!b.Val}, nil
 			}
@@ -30,11 +33,14 @@ func init() {
 		},
 		},
 	}
+	names := make([]string, len(globalFuncs))
+	vals := make([]Value, len(globalFuncs))
 
-	for _, g := range globalFuncs {
-		globalEnv = globalEnv.Extend(g.name, &NativeFunction{g.fn})
+	for i, g := range globalFuncs {
+		names[i] = g.name
+		vals[i] = &NativeFunction{g.fn}
 	}
-
+	globalEnv = globalEnv.Extend(names, vals)
 }
 
 func TestEval(t *testing.T) {
@@ -57,7 +63,7 @@ func TestEval(t *testing.T) {
 				Consequent: &lambda.String{"true"},
 				Alternate: &lambda.Application{
 					Func: &lambda.Variable{"die"},
-					Arg:  &lambda.Boolean{true},
+					Args: []lambda.AST{&lambda.Boolean{true}},
 				},
 			},
 			&String{"true"},

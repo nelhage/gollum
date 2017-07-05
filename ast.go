@@ -28,7 +28,7 @@ func (v *Variable) isAST() {}
 
 // Abstraction represents a lambda abstraction
 type Abstraction struct {
-	Var  string
+	Vars []string
 	Body AST
 }
 
@@ -37,7 +37,7 @@ func (a *Abstraction) isAST() {}
 // Application represents a function call
 type Application struct {
 	Func AST
-	Arg  AST
+	Args []AST
 }
 
 func (a *Application) isAST() {}

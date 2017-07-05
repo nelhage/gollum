@@ -22,7 +22,7 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 	case *lambda.Abstraction:
 		return &Closure{
 			Env:  e,
-			Arg:  n.Var,
+			Args: n.Vars,
 			Body: n.Body,
 		}, nil
 	case *lambda.Application:
@@ -30,11 +30,17 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 		if err != nil {
 			return nil, err
 		}
-		arg, err := Eval(n.Arg, e)
+		argv := make([]Value, len(n.Args))
+		for i, ast := range n.Args {
+			argv[i], err = Eval(ast, e)
+			if err != nil {
+				return nil, err
+			}
+		}
 		if err != nil {
 			return nil, err
 		}
-		return evalFunc(fn, arg, e)
+		return evalFunc(fn, argv, e)
 	case *lambda.If:
 		cond, err := Eval(n.Condition, e)
 		if err != nil {
@@ -55,13 +61,16 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 	}
 }
 
-func evalFunc(fn Value, arg Value, e *Environment) (Value, error) {
+func evalFunc(fn Value, argv []Value, e *Environment) (Value, error) {
 	switch f := fn.(type) {
 	case *Closure:
-		e := f.Env.Extend(f.Arg, arg)
+		if len(f.Args) != len(argv) {
+			return nil, ArityError{fn, len(f.Args), argv}
+		}
+		e := f.Env.Extend(f.Args, argv)
 		return Eval(f.Body, e)
 	case *NativeFunction:
-		return f.Func(arg)
+		return f.Func(argv)
 	default:
 		return nil, TypeError{fn, "function"}
 	}

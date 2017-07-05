@@ -21,3 +21,15 @@ type TypeError struct {
 func (t TypeError) Error() string {
 	return fmt.Sprintf("Expected type: %q", t.Expected)
 }
+
+// ArityError is a runtime argument-count error
+type ArityError struct {
+	Fn       Value
+	Expected int
+	Args     []Value
+}
+
+func (a ArityError) Error() string {
+	return fmt.Sprintf("Bad number of arguments: %d (expected: %d)",
+		len(a.Args), a.Expected)
+}

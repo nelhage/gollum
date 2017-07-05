@@ -23,7 +23,7 @@ func (s *String) isValue() {}
 
 // NativeFunction is a built-in implemented in the runtime
 type NativeFunction struct {
-	Func func(Value) (Value, error)
+	Func func([]Value) (Value, error)
 }
 
 func (n *NativeFunction) isValue() {}
@@ -31,7 +31,7 @@ func (n *NativeFunction) isValue() {}
 // Closure is an in-language function
 type Closure struct {
 	Env  *Environment
-	Arg  string
+	Args []string
 	Body lambda.AST
 }
 
