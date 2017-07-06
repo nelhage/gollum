@@ -52,18 +52,18 @@ func TestEval(t *testing.T) {
 	}{
 		{
 			"lit",
-			&lambda.Boolean{true},
+			&lambda.Boolean{Value: true},
 			&Boolean{true},
 			nil,
 		},
 		{
 			"if",
 			&lambda.If{
-				Condition:  &lambda.Boolean{true},
-				Consequent: &lambda.String{"true"},
+				Condition:  &lambda.Boolean{Value: true},
+				Consequent: &lambda.String{Value: "true"},
 				Alternate: &lambda.Application{
-					Func: &lambda.Variable{"die"},
-					Args: []lambda.AST{&lambda.Boolean{true}},
+					Func: &lambda.Variable{Var: "die"},
+					Args: []lambda.AST{&lambda.Boolean{Value: true}},
 				},
 			},
 			&String{"true"},
@@ -71,7 +71,7 @@ func TestEval(t *testing.T) {
 		},
 		{
 			"unbound",
-			&lambda.Variable{"foobar"},
+			&lambda.Variable{Var: "foobar"},
 			nil,
 			UnboundVariable{"foobar"},
 		},
