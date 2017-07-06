@@ -65,6 +65,18 @@ func (l *lexer) readWhile(init rune, want func(rune) bool) (string, error) {
 	return string(runes), nil
 }
 
+func (l *lexer) peek() (rune, error) {
+	r, _, e := l.r.ReadRune()
+	if e != nil {
+		return r, e
+	}
+	l.r.UnreadRune()
+	if e != nil {
+		return 0, e
+	}
+	return r, nil
+}
+
 func (l *lexer) Loc() lambda.Loc {
 	return lambda.Loc{File: l.filename, Char: l.off}
 }
@@ -93,6 +105,20 @@ func (l *lexer) next() (token, interface{}, error) {
 	if unicode.IsNumber(r) {
 		return l.number(r)
 	}
+	if r == '-' {
+		peek, e := l.peek()
+		if e == io.EOF {
+			return token(r), nil, nil
+		}
+		if e != nil {
+			return 0, nil, e
+		}
+		if unicode.IsNumber(peek) {
+			return l.number(r)
+		}
+		return token(r), nil, nil
+	}
+
 	if r == '"' {
 		return l.string(r)
 	}

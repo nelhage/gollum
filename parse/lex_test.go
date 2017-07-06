@@ -62,6 +62,16 @@ func TestLex(t *testing.T) {
 				{l(8), tokStr, "world"},
 			},
 		},
+		{
+			`4 - -4 -x`,
+			[]fullTok{
+				{l(0), tokNumber, int64(4)},
+				{l(2), token('-'), nil},
+				{l(4), tokNumber, int64(-4)},
+				{l(7), token('-'), nil},
+				{l(8), tokIdent, "x"},
+			},
+		},
 	}
 	for _, tc := range cases {
 		toks := lex(tc.str)
