@@ -36,6 +36,14 @@ type String struct {
 
 func (s *String) isAST() {}
 
+// Integer represents an integer literal
+type Integer struct {
+	hasLoc
+	Value int64
+}
+
+func (s *Integer) isAST() {}
+
 // Variable represents a variable term
 type Variable struct {
 	hasLoc

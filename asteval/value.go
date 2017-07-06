@@ -7,19 +7,26 @@ type Value interface {
 	isValue()
 }
 
-// Boolean is a boolean literal
+// Boolean is a boolean value
 type Boolean struct {
 	Val bool
 }
 
 func (b *Boolean) isValue() {}
 
-// String is a string literal
+// String is a string value
 type String struct {
 	Val string
 }
 
 func (s *String) isValue() {}
+
+// Integer is an integer value
+type Integer struct {
+	Val int64
+}
+
+func (s *Integer) isValue() {}
 
 // NativeFunction is a built-in implemented in the runtime
 type NativeFunction struct {

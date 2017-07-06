@@ -32,6 +32,18 @@ func init() {
 			return nil, TypeError{v, "boolean"}
 		},
 		},
+		{"+", 2, func(vs []Value) (Value, error) {
+			l := vs[0].(*Integer)
+			r := vs[1].(*Integer)
+			if l == nil {
+				return nil, TypeError{vs[0], "integer"}
+			}
+			if r == nil {
+				return nil, TypeError{vs[1], "integer"}
+			}
+			return &Integer{l.Val + r.Val}, nil
+		},
+		},
 	}
 	names := make([]string, len(globalFuncs))
 	vals := make([]Value, len(globalFuncs))

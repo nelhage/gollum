@@ -13,6 +13,8 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 		return &Boolean{n.Value}, nil
 	case *lambda.String:
 		return &String{n.Value}, nil
+	case *lambda.Integer:
+		return &Integer{n.Value}, nil
 	case *lambda.Variable:
 		v := e.Lookup(n.Var)
 		if v == nil {
