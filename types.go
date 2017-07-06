@@ -19,3 +19,10 @@ type FunctionType struct {
 }
 
 func (a *FunctionType) isType() {}
+
+// TupleType is the type of a tuple
+type TupleType struct {
+	Elts []Type
+}
+
+func (t *TupleType) isType() {}
