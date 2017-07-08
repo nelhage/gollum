@@ -16,7 +16,7 @@ type fullTok struct {
 }
 
 func lex(s string) []fullTok {
-	r := locReader{r: bufio.NewReader(strings.NewReader(s))}
+	r := offsetReader{r: bufio.NewReader(strings.NewReader(s))}
 	l := lexer{filename: "<test>", r: r}
 
 	var toks []fullTok
@@ -38,8 +38,8 @@ func lex(s string) []fullTok {
 }
 
 func TestLex(t *testing.T) {
-	l := func(off uint) lambda.Loc {
-		return lambda.Loc{File: "<test>", Char: off}
+	l := func(b, e uint) lambda.Loc {
+		return lambda.Loc{File: "<test>", Begin: b, End: e}
 	}
 
 	cases := []struct {
@@ -49,27 +49,27 @@ func TestLex(t *testing.T) {
 		{
 			"if and 93 \ttrue",
 			[]fullTok{
-				{l(0), tokIf, "if"},
-				{l(3), tokIdent, "and"},
-				{l(7), tokNumber, int64(93)},
-				{l(11), tokBoolean, "true"},
+				{l(0, 2), tokIf, "if"},
+				{l(3, 6), tokIdent, "and"},
+				{l(7, 9), tokNumber, int64(93)},
+				{l(11, 15), tokBoolean, "true"},
 			},
 		},
 		{
 			`"hello" "world"`,
 			[]fullTok{
-				{l(0), tokStr, "hello"},
-				{l(8), tokStr, "world"},
+				{l(0, 7), tokStr, "hello"},
+				{l(8, 15), tokStr, "world"},
 			},
 		},
 		{
 			`4 - -4 -x`,
 			[]fullTok{
-				{l(0), tokNumber, int64(4)},
-				{l(2), token('-'), nil},
-				{l(4), tokNumber, int64(-4)},
-				{l(7), token('-'), nil},
-				{l(8), tokIdent, "x"},
+				{l(0, 1), tokNumber, int64(4)},
+				{l(2, 3), token('-'), nil},
+				{l(4, 6), tokNumber, int64(-4)},
+				{l(7, 8), token('-'), nil},
+				{l(8, 9), tokIdent, "x"},
 			},
 		},
 	}

@@ -2,8 +2,8 @@ package lambda
 
 // Loc represents a source location.
 type Loc struct {
-	File string
-	Char uint
+	File       string
+	Begin, End uint
 }
 
 // AST is the type of an AST in the language

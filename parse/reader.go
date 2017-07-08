@@ -1,13 +1,15 @@
 package parse
 
-import "io"
+import (
+	"io"
+)
 
-type locReader struct {
+type offsetReader struct {
 	off uint
 	r   io.RuneScanner
 }
 
-func (l *locReader) ReadRune() (rune, int, error) {
+func (l *offsetReader) ReadRune() (rune, int, error) {
 	r, i, e := l.r.ReadRune()
 	if e == nil {
 		l.off++
@@ -15,7 +17,7 @@ func (l *locReader) ReadRune() (rune, int, error) {
 	return r, i, e
 }
 
-func (l *locReader) UnreadRune() error {
+func (l *offsetReader) UnreadRune() error {
 	e := l.r.UnreadRune()
 	if e == nil {
 		l.off--

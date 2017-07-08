@@ -13,7 +13,7 @@ type lexer struct {
 	filename string
 
 	ioErr error
-	r     locReader
+	r     offsetReader
 }
 
 type token int
@@ -56,32 +56,34 @@ func (l *lexer) rune() rune {
 	return r
 }
 
-func (l *lexer) readWhile(init rune, want func(rune) bool) (string, error) {
+func (l *lexer) unread() {
+	if e := l.r.UnreadRune(); e != nil {
+		if l.ioErr != nil {
+			l.ioErr = e
+		}
+	}
+}
+
+func (l *lexer) readWhile(init rune, want func(rune) bool) string {
 	runes := []rune{init}
 	var r rune
 	for {
-		r := l.rune()
+		r = l.rune()
 		if r == 0 || !want(r) {
 			break
 		}
 		runes = append(runes, r)
 	}
 	if r != 0 {
-		if e := l.r.UnreadRune(); e != nil {
-			return "", e
-		}
+		l.unread()
 	}
-	return string(runes), nil
+	return string(runes)
 }
 
 func (l *lexer) peek() rune {
 	r := l.rune()
 	if r != 0 {
-		if e := l.r.UnreadRune(); e != nil {
-			if l.ioErr == nil {
-				l.ioErr = e
-			}
-		}
+		l.unread()
 	}
 	return r
 }
@@ -94,7 +96,7 @@ func (l *lexer) token(t token, val interface{}) (token, interface{}, error) {
 }
 
 func (l *lexer) Loc() lambda.Loc {
-	return lambda.Loc{File: l.filename, Char: l.off}
+	return lambda.Loc{File: l.filename, Begin: l.off, End: l.r.off}
 }
 
 func (l *lexer) next() (token, interface{}, error) {
@@ -134,10 +136,7 @@ func (l *lexer) next() (token, interface{}, error) {
 }
 
 func (l *lexer) number(r rune) (token, interface{}, error) {
-	num, e := l.readWhile(r, unicode.IsNumber)
-	if e != nil {
-		return 0, nil, e
-	}
+	num := l.readWhile(r, unicode.IsNumber)
 	val, e := strconv.ParseInt(num, 10, 64)
 	if e != nil {
 		return 0, nil, e
@@ -146,15 +145,12 @@ func (l *lexer) number(r rune) (token, interface{}, error) {
 }
 
 func (l *lexer) ident(r rune) (token, interface{}, error) {
-	word, e := l.readWhile(r, func(r rune) bool {
+	word := l.readWhile(r, func(r rune) bool {
 		return unicode.Is(unicode.Pc, r) ||
 			unicode.IsLetter(r) ||
 			unicode.IsNumber(r)
 	})
 
-	if e != nil {
-		return 0, nil, e
-	}
 	if kw := keywords[word]; kw != 0 {
 		return kw, word, nil
 	}
@@ -162,11 +158,9 @@ func (l *lexer) ident(r rune) (token, interface{}, error) {
 
 }
 
+// TODO: escaping
 func (l *lexer) string(r rune) (token, interface{}, error) {
-	word, e := l.readWhile(r, func(r rune) bool { return r != '"' })
-	if e != nil {
-		return 0, nil, e
-	}
-	l.r.ReadRune()
-	return tokStr, word[1:], nil
+	word := l.readWhile(r, func(r rune) bool { return r != '"' })
+	l.rune()
+	return l.token(tokStr, word[1:])
 }
