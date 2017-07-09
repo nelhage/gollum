@@ -4,7 +4,6 @@ package parse
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"strconv"
 	"unicode"
@@ -20,29 +19,21 @@ type lexer struct {
 	r     offsetReader
 
 	result lambda.AST
-	error  error
+	errors []error
 }
 
 type token int
 
 const (
-	tokEOF token = iota
-
-	// identifiers
-	tokFunc
-	tokIf
-
-	// primitives
-	tokBoolean
-	tokNumber
-	tokStr
-
-	// identifiers
-	tokIdent
+	eof = 0
 )
 
 var keywords = map[string]token{
-	"if":    tokIf,
+	"if":   tokIf,
+	"then": tokThen,
+	"else": tokElse,
+	"end":  tokEnd,
+
 	"fn":    tokFunc,
 	"true":  tokBoolean,
 	"false": tokBoolean,
@@ -112,7 +103,7 @@ func (l *lexer) next() (token, interface{}, error) {
 		l.off = l.r.off
 		r = l.rune()
 		if r == 0 {
-			return l.token(tokEOF, nil)
+			return l.token(eof, nil)
 		}
 		if !unicode.IsSpace(r) {
 			break
@@ -171,9 +162,9 @@ func (l *lexer) string(r rune) (token, interface{}, error) {
 	r = l.rune()
 	if r != '"' {
 		if l.ioErr != nil {
-			return tokEOF, nil, l.ioErr
+			return eof, nil, l.ioErr
 		}
-		return tokEOF, nil, errors.New(`Unmatched '"'`)
+		return eof, nil, errors.New(`Unmatched '"'`)
 	}
 	return l.token(tokStr, word[1:])
 }
@@ -188,8 +179,8 @@ type tokenStruct struct {
 func (l *lexer) Lex(lval *yySymType) int {
 	tok, val, err := l.next()
 	if err != nil {
-		l.error = err
-		return int(tokEOF)
+		l.errors = append(l.errors, err)
+		return eof
 	}
 
 	lval.tok = &tokenStruct{l.Loc(), val}
@@ -197,5 +188,19 @@ func (l *lexer) Lex(lval *yySymType) int {
 }
 
 func (l *lexer) Error(e string) {
-	l.error = fmt.Errorf("parser error: %s", e)
+	l.errors = append(l.errors, &Error{l.Loc(), e})
+}
+
+func extend(l, r lambda.Loc) lambda.Loc {
+	if l.File != r.File {
+		panic("extend filename")
+	}
+	if l.Begin > r.End {
+		panic("extend order")
+	}
+	return lambda.Loc{
+		File:  l.File,
+		Begin: l.Begin,
+		End:   r.End,
+	}
 }

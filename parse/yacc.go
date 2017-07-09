@@ -10,15 +10,41 @@ import (
 
 //line yacc.y:11
 type yySymType struct {
-	yys int
-	ast *lambda.AST
-	tok *tokenStruct
+	yys  int
+	ast  lambda.AST
+	asts []lambda.AST
+	tok  *tokenStruct
+	toks []tokenStruct
 }
+
+const tokFunc = 57346
+const tokIf = 57347
+const tokThen = 57348
+const tokElse = 57349
+const tokEnd = 57350
+const tokBoolean = 57351
+const tokNumber = 57352
+const tokStr = 57353
+const tokIdent = 57354
 
 var yyToknames = [...]string{
 	"$end",
 	"error",
 	"$unk",
+	"tokFunc",
+	"tokIf",
+	"tokThen",
+	"tokElse",
+	"tokEnd",
+	"tokBoolean",
+	"tokNumber",
+	"tokStr",
+	"tokIdent",
+	"','",
+	"'('",
+	"')'",
+	"'{'",
+	"'}'",
 }
 var yyStatenames = [...]string{}
 
@@ -26,7 +52,8 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line yacc.y:20
+//line yacc.y:152
+
 //line yacctab:1
 var yyExca = [...]int{
 	-1, 1,
@@ -34,49 +61,80 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 2
+const yyNprod = 25
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 1
+const yyLast = 44
 
 var yyAct = [...]int{
 
-	1,
+	2, 15, 34, 33, 39, 15, 22, 30, 38, 16,
+	15, 23, 27, 17, 15, 15, 21, 18, 35, 15,
+	14, 12, 31, 28, 29, 9, 10, 11, 13, 32,
+	8, 26, 1, 25, 36, 37, 24, 20, 19, 7,
+	6, 5, 4, 3,
 }
 var yyPact = [...]int{
 
-	-1000, -1000,
+	16, -1000, 1, -1000, -1000, -1000, -1000, -1000, 16, -1000,
+	-1000, -1000, 16, -1000, 3, 16, -9, 5, 19, -3,
+	10, 1, -1000, 16, -8, 9, -1000, -1000, 16, -4,
+	-14, 6, 1, 16, 16, -1000, 0, -13, -1000, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 0,
+	0, 0, 43, 42, 41, 40, 39, 38, 37, 36,
+	33, 32,
 }
 var yyR1 = [...]int{
 
-	0, 1,
+	0, 11, 1, 1, 1, 1, 1, 1, 2, 2,
+	2, 3, 4, 5, 9, 9, 9, 10, 10, 6,
+	7, 7, 7, 8, 8,
 }
 var yyR2 = [...]int{
 
-	0, 0,
+	0, 1, 1, 1, 1, 1, 1, 3, 1, 1,
+	1, 7, 1, 7, 0, 1, 2, 1, 3, 4,
+	0, 1, 2, 1, 3,
 }
 var yyChk = [...]int{
 
-	-1000, -1,
+	-1000, -11, -1, -2, -3, -4, -5, -6, 14, 9,
+	10, 11, 5, 12, 4, 14, -1, -1, 14, -7,
+	-8, -1, 15, 6, -9, -10, 12, 15, 13, -1,
+	15, 13, -1, 7, 16, 12, -1, -1, 8, 17,
 }
 var yyDef = [...]int{
 
-	1, -2,
+	0, -2, 1, 2, 3, 4, 5, 6, 0, 8,
+	9, 10, 0, 12, 0, 20, 0, 0, 14, 0,
+	21, 23, 7, 0, 0, 15, 17, 19, 22, 0,
+	0, 16, 24, 0, 0, 18, 0, 0, 11, 13,
 }
 var yyTok1 = [...]int{
 
-	1,
+	1, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	14, 15, 3, 3, 13, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 16, 3, 17,
 }
 var yyTok2 = [...]int{
 
-	2, 3,
+	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+	12,
 }
 var yyTok3 = [...]int{
 	0,
@@ -419,6 +477,125 @@ yydefault:
 	// dummy call; replaced with literal code
 	switch yynt {
 
+	case 1:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line yacc.y:38
+		{
+			yylex.(*lexer).result = yyDollar[1].ast
+		}
+	case 7:
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line yacc.y:49
+		{
+			yyVAL.ast = yyDollar[2].ast
+		}
+	case 8:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line yacc.y:55
+		{
+			yyVAL.ast = &lambda.Boolean{
+				Loc:   yyDollar[1].tok.loc,
+				Value: yyDollar[1].tok.val.(string) == "true",
+			}
+		}
+	case 9:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line yacc.y:62
+		{
+			yyVAL.ast = &lambda.Integer{
+				Loc:   yyDollar[1].tok.loc,
+				Value: yyDollar[1].tok.val.(int64),
+			}
+		}
+	case 10:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line yacc.y:69
+		{
+			yyVAL.ast = &lambda.String{
+				Loc:   yyDollar[1].tok.loc,
+				Value: yyDollar[1].tok.val.(string),
+			}
+		}
+	case 11:
+		yyDollar = yyS[yypt-7 : yypt+1]
+		//line yacc.y:78
+		{
+			yyVAL.ast = &lambda.If{
+				Loc:        extend(yyDollar[1].tok.loc, yyDollar[6].ast.Location()),
+				Condition:  yyDollar[2].ast,
+				Consequent: yyDollar[4].ast,
+				Alternate:  yyDollar[6].ast,
+			}
+		}
+	case 12:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line yacc.y:88
+		{
+			yyVAL.ast = &lambda.Variable{
+				Loc: yyDollar[1].tok.loc,
+				Var: yyDollar[1].tok.val.(string),
+			}
+		}
+	case 13:
+		yyDollar = yyS[yypt-7 : yypt+1]
+		//line yacc.y:97
+		{
+			vars := []string{}
+			for _, tok := range yyDollar[3].toks {
+				vars = append(vars, tok.val.(string))
+			}
+			yyVAL.ast = &lambda.Abstraction{
+				Loc:  extend(yyDollar[1].tok.loc, yyDollar[7].tok.loc),
+				Vars: vars,
+				Body: yyDollar[6].ast,
+			}
+		}
+	case 14:
+		yyDollar = yyS[yypt-0 : yypt+1]
+		//line yacc.y:110
+		{
+			yyVAL.toks = []tokenStruct{}
+		}
+	case 17:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line yacc.y:117
+		{
+			yyVAL.toks = []tokenStruct{*yyDollar[1].tok}
+		}
+	case 18:
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line yacc.y:121
+		{
+			yyVAL.toks = append(yyDollar[1].toks, *yyDollar[3].tok)
+		}
+	case 19:
+		yyDollar = yyS[yypt-4 : yypt+1]
+		//line yacc.y:127
+		{
+			yyVAL.ast = &lambda.Application{
+				Loc:  extend(yyDollar[1].ast.Location(), yyDollar[4].tok.loc),
+				Func: yyDollar[1].ast,
+				Args: yyDollar[3].asts,
+			}
+		}
+	case 20:
+		yyDollar = yyS[yypt-0 : yypt+1]
+		//line yacc.y:136
+		{
+			yyVAL.asts = []lambda.AST{}
+		}
+	case 23:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line yacc.y:144
+		{
+			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
+		}
+	case 24:
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line yacc.y:148
+		{
+			yyVAL.asts = append(yyDollar[1].asts, yyDollar[3].ast)
+		}
 	}
 	goto yystack /* stack new state and value */
 }
