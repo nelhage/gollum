@@ -1,6 +1,7 @@
 package parse
 
 import (
+	"errors"
 	"io"
 	"strconv"
 	"unicode"
@@ -161,6 +162,12 @@ func (l *lexer) ident(r rune) (token, interface{}, error) {
 // TODO: escaping
 func (l *lexer) string(r rune) (token, interface{}, error) {
 	word := l.readWhile(r, func(r rune) bool { return r != '"' })
-	l.rune()
+	r = l.rune()
+	if r != '"' {
+		if l.ioErr != nil {
+			return tokEOF, nil, l.ioErr
+		}
+		return tokEOF, nil, errors.New(`Unmatched '"'`)
+	}
 	return l.token(tokStr, word[1:])
 }

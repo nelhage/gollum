@@ -94,3 +94,12 @@ func TestLex(t *testing.T) {
 		}
 	}
 }
+
+func TestLexError(t *testing.T) {
+	r := offsetReader{r: bufio.NewReader(strings.NewReader(`"foo`))}
+	l := lexer{filename: "<test>", r: r}
+	tok, _, e := l.next()
+	if e == nil {
+		t.Fatalf("did not error on mismatched \": %v", tok)
+	}
+}
