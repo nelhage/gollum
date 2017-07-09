@@ -1,7 +1,10 @@
 package parse
 
+//go:generate goyacc -o yacc.go yacc.y
+
 import (
 	"errors"
+	"fmt"
 	"io"
 	"strconv"
 	"unicode"
@@ -15,6 +18,9 @@ type lexer struct {
 
 	ioErr error
 	r     offsetReader
+
+	result lambda.AST
+	error  error
 }
 
 type token int
@@ -170,4 +176,26 @@ func (l *lexer) string(r rune) (token, interface{}, error) {
 		return tokEOF, nil, errors.New(`Unmatched '"'`)
 	}
 	return l.token(tokStr, word[1:])
+}
+
+// yacc interface
+
+type tokenStruct struct {
+	loc lambda.Loc
+	val interface{}
+}
+
+func (l *lexer) Lex(lval *yySymType) int {
+	tok, val, err := l.next()
+	if err != nil {
+		l.error = err
+		return int(tokEOF)
+	}
+
+	lval.tok = &tokenStruct{l.Loc(), val}
+	return int(tok)
+}
+
+func (l *lexer) Error(e string) {
+	l.error = fmt.Errorf("parser error: %s", e)
 }
