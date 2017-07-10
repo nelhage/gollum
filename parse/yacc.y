@@ -93,16 +93,16 @@ variable:       tokIdent
                 }
 
 abstraction:
-                tokFunc '(' varlist ')' '{' expression '}'
+                tokFunc '(' varlist ')' expression
                 {
                     vars := []string{}
                     for _, tok := range $3 {
                         vars = append(vars, tok.val.(string))
                     }
                     $$ = &lambda.Abstraction {
-                        Loc: extend($1.loc, $7.loc),
+                        Loc: extend($1.loc, $5.Location()),
                         Vars: vars,
-                        Body: $6,
+                        Body: $5,
                     }
                 }
 

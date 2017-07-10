@@ -1,0 +1,11 @@
+(fn (Y, fh)
+  Y(fh)(6))(
+  fn(f) (fn(x) f(fn(v) x(x)(v)))(fn(x) f(fn(v) x(x)(v))),
+  fn(fact)
+    fn(x)
+     if iszero(x) then
+       1
+     else
+       mul(x, fact(dec(x)))
+     end
+)
