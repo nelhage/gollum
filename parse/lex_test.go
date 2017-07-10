@@ -25,7 +25,7 @@ func lex(s string) []fullTok {
 		if e != nil {
 			panic(e)
 		}
-		if tok == tokEOF {
+		if tok == 0 {
 			break
 		}
 		toks = append(toks, fullTok{
