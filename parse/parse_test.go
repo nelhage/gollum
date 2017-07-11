@@ -47,7 +47,7 @@ func listDir(t *testing.T, dir string) []testFile {
 }
 
 func TestParser(t *testing.T) {
-	good := listDir(t, "zoo/good")
+	good := listDir(t, "testdata/good")
 	for _, tc := range good {
 		t.Run("good/"+tc.name, func(t *testing.T) {
 			buf := bytes.NewBuffer(tc.body)
@@ -56,20 +56,20 @@ func TestParser(t *testing.T) {
 				log.Fatalf("parse(%q): %v", tc.name, err)
 			}
 			ioutil.WriteFile(
-				path.Join("zoo/good", tc.name+".ast"),
+				path.Join("testdata/good", tc.name+".ast"),
 				[]byte(pretty.Sprint(ast)),
 				0644)
 		})
 	}
 
-	bad := listDir(t, "zoo/bad")
+	bad := listDir(t, "testdata/bad")
 	for _, tc := range bad {
 		t.Run("bad/"+tc.name, func(t *testing.T) {
 			buf := bytes.NewBuffer(tc.body)
 			ast, err := Parse(buf, tc.name)
 			if err == nil {
 				ioutil.WriteFile(
-					path.Join("zoo/bad", tc.name+".ast"),
+					path.Join("testdata/bad", tc.name+".ast"),
 					[]byte(pretty.Sprint(ast)),
 					0644)
 				log.Fatalf("parse(%q): ok", tc.name)
