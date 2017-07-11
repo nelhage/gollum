@@ -95,6 +95,14 @@ type TyName struct {
 
 func (t *TyName) isAST() {}
 
+// TyTuple represents a tuple type in the AST
+type TyTuple struct {
+	Loc
+	Elts []AST
+}
+
+func (t *TyTuple) isAST() {}
+
 // TyArrow represents an -> type in the AST
 type TyArrow struct {
 	Loc

@@ -24,6 +24,7 @@ import (
 %type   <asts>          vars
 %type   <ast>           typedecl
 %type   <ast>           type
+%type   <asts>          tupleType
 
 %token  <tok>           tokFunc tokIf tokThen tokElse tokEnd
 %token  <tok>           tokBoolean tokNumber tokStr
@@ -155,6 +156,28 @@ type:
                         Range: $3,
                     }
                 }
+        |       '(' type ')'
+                {
+                    $$ = $2
+                }
+        |       '(' tupleType ')'
+                {
+                    $$ = &lambda.TyTuple{
+                        Loc: extend($1.loc, $3.loc),
+                        Elts: $2,
+                    }
+                }
+
+tupleType:
+                type ','
+                {
+                    $$ = []lambda.AST{$1}
+                }
+        |       tupleType type
+                {
+                    $$ = append($1, $2)
+                }
+
 application:
                 expression '(' expressionlist ')'
                 {
