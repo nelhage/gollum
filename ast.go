@@ -1,5 +1,7 @@
 package lambda
 
+import "fmt"
+
 // Loc represents a source location.
 type Loc struct {
 	File       string
@@ -16,6 +18,11 @@ type AST interface {
 // implement the Location() method of AST
 func (l Loc) Location() Loc {
 	return l
+}
+
+// String implements Stringer for Loc
+func (l Loc) String() string {
+	return fmt.Sprintf("%s:%d", l.File, l.Begin)
 }
 
 // Boolean represents a boolean literal

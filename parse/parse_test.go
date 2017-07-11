@@ -4,75 +4,40 @@ import (
 	"bytes"
 	"io/ioutil"
 	"log"
-	"os"
-	"path"
-	"strings"
 	"testing"
+
+	"nelhage.com/lambda/lambdatest"
 
 	"github.com/kr/pretty"
 )
 
-type testFile struct {
-	name string
-	body []byte
-}
-
-func listDir(t *testing.T, dir string) []testFile {
-	f, e := os.Open(dir)
-	if e != nil {
-		t.Fatalf("open(%q): %v", dir, e)
-	}
-	defer f.Close()
-	ents, e := f.Readdir(0)
-	if e != nil {
-		t.Fatalf("readdir(%q): %v", dir, e)
-	}
-
-	var out []testFile
-	for _, fi := range ents {
-		if strings.HasPrefix(fi.Name(), ".") {
-			continue
-		}
-		if !strings.HasSuffix(fi.Name(), ".gol") {
-			continue
-		}
-		p := path.Join(dir, fi.Name())
-		b, e := ioutil.ReadFile(p)
-		if e != nil {
-			t.Fatalf("read(%s): %v", p, e)
-		}
-		out = append(out, testFile{fi.Name(), b})
-	}
-	return out
-}
-
 func TestParser(t *testing.T) {
-	good := listDir(t, "testdata/good")
+	good := lambdatest.ListDir(t, "good")
 	for _, tc := range good {
-		t.Run("good/"+tc.name, func(t *testing.T) {
-			buf := bytes.NewBuffer(tc.body)
-			ast, err := Parse(buf, tc.name)
+		t.Run("good/"+tc.Name, func(t *testing.T) {
+			buf := bytes.NewBuffer(tc.Body)
+			ast, err := Parse(buf, tc.Name)
 			if err != nil {
-				log.Fatalf("parse(%q): %v", tc.name, err)
+				log.Fatalf("parse(%q): %v", tc.Name, err)
 			}
 			ioutil.WriteFile(
-				path.Join("testdata/good", tc.name+".ast"),
+				tc.Path+".ast",
 				[]byte(pretty.Sprint(ast)),
 				0644)
 		})
 	}
 
-	bad := listDir(t, "testdata/bad")
+	bad := lambdatest.ListDir(t, "bad")
 	for _, tc := range bad {
-		t.Run("bad/"+tc.name, func(t *testing.T) {
-			buf := bytes.NewBuffer(tc.body)
-			ast, err := Parse(buf, tc.name)
+		t.Run("bad/"+tc.Name, func(t *testing.T) {
+			buf := bytes.NewBuffer(tc.Body)
+			ast, err := Parse(buf, tc.Name)
 			if err == nil {
 				ioutil.WriteFile(
-					path.Join("testdata/bad", tc.name+".ast"),
+					tc.Path+".ast",
 					[]byte(pretty.Sprint(ast)),
 					0644)
-				log.Fatalf("parse(%q): ok", tc.name)
+				log.Fatalf("parse(%q): ok", tc.Name)
 			}
 		})
 	}

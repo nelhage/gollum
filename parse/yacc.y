@@ -32,7 +32,7 @@ import (
 %token  <tok>           tokArrow
 %token  <tok>           ',' '(' ')' '{' '}' ':'
 
-%left tokArrow
+%right tokArrow
 
 %%
 
@@ -169,13 +169,13 @@ type:
                 }
 
 tupleType:
-                type ','
+                type
                 {
                     $$ = []lambda.AST{$1}
                 }
-        |       tupleType type
+        |       tupleType ',' type
                 {
-                    $$ = append($1, $2)
+                    $$ = append($1, $3)
                 }
 
 application:

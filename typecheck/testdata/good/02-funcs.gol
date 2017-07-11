@@ -1,0 +1,11 @@
+(fn(
+ f : int -> int,
+ g : int -> int -> int,
+ h : (int, int) -> int,
+ i : (int, bool, int -> int) -> int -> int,
+) true)(
+ fn(x : int) 0,
+ fn(x : int) fn(y: int) add(x, y),
+ add,
+ fn(i : int, j : bool, k : int -> int) k,
+)

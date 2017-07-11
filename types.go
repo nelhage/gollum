@@ -7,7 +7,7 @@ type Type interface {
 
 // AtomicType represents a primitive atomic type
 type AtomicType struct {
-	TyCon string
+	Name string
 }
 
 func (a *AtomicType) isType() {}

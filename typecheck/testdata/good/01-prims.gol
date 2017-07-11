@@ -1,0 +1,9 @@
+(fn(
+ x : int,
+ y : bool,
+ z : str,
+) true) (
+ 0,
+ false,
+ "hello",
+)
