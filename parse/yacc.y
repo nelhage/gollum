@@ -12,7 +12,6 @@ import (
     ast lambda.AST
     asts []lambda.AST
     tok *tokenStruct
-    toks []tokenStruct
 }
 
 %type   <ast>           expression literal condition
@@ -21,15 +20,18 @@ import (
 %type   <asts>          expressionlist
 %type   <asts>          expressions
 
-%type   <toks>          varlist
-%type   <toks>          vars
+%type   <asts>          varlist
+%type   <asts>          vars
+%type   <ast>           typedecl
+%type   <ast>           type
 
 %token  <tok>           tokFunc tokIf tokThen tokElse tokEnd
 %token  <tok>           tokBoolean tokNumber tokStr
 %token  <tok>           tokIdent
-%token  <tok>           ',' '(' ')' '{' '}'
+%token  <tok>           tokArrow
+%token  <tok>           ',' '(' ')' '{' '}' ':'
 
-%nonassoc ')'
+%left tokArrow
 
 %%
 
@@ -47,6 +49,7 @@ expression:
         |       application
         |       '(' expression ')'
                 {
+                    // TODO: extend location somehow
                     $$ = $2
                 }
 
@@ -95,33 +98,63 @@ variable:       tokIdent
 abstraction:
                 tokFunc '(' varlist ')' expression
                 {
-                    vars := []string{}
-                    for _, tok := range $3 {
-                        vars = append(vars, tok.val.(string))
-                    }
                     $$ = &lambda.Abstraction {
                         Loc: extend($1.loc, $5.Location()),
-                        Vars: vars,
+                        Vars: $3,
                         Body: $5,
                     }
                 }
 
 varlist:
                 {
-                    $$ = []tokenStruct{}
+                    $$ = []lambda.AST{}
                 }
         |       vars
         |       vars ','
 
-vars:           tokIdent
+vars:           typedecl
                 {
-                    $$ = []tokenStruct{*$1}
+                    $$ = []lambda.AST{$1}
                 }
-        |       vars ',' tokIdent
+        |       vars ',' typedecl
                 {
-                    $$ = append($1, *$3)
+                    $$ = append($1, $3)
                 }
 
+typedecl:
+                tokIdent
+                {
+                    $$ = &lambda.TypedName{
+                        Loc: $1.loc,
+                        Name: $1.val.(string),
+                        Type: nil,
+                    }
+                }
+        |       tokIdent ':' type
+                {
+                    $$ = &lambda.TypedName{
+                        Loc: $1.loc,
+                        Name: $1.val.(string),
+                        Type: $3,
+                    }
+                }
+
+type:
+                tokIdent
+                {
+                    $$ = &lambda.TyName{
+                        Loc: $1.loc,
+                        Type: $1.val.(string),
+                    }
+                }
+        |       type tokArrow type
+                {
+                    $$ = &lambda.TyArrow{
+                        Loc: extend($1.Location(), $3.Location()),
+                        Dom: $1,
+                        Range: $3,
+                    }
+                }
 application:
                 expression '(' expressionlist ')'
                 {

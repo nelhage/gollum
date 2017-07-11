@@ -22,9 +22,13 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 		}
 		return v, nil
 	case *lambda.Abstraction:
+		var names []string
+		for _, v := range n.Vars {
+			names = append(names, v.(*lambda.TypedName).Name)
+		}
 		return &Closure{
 			Env:  e,
-			Args: n.Vars,
+			Args: names,
 			Body: n.Body,
 		}, nil
 	case *lambda.Application:

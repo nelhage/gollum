@@ -53,11 +53,20 @@ func (v *Variable) isAST() {}
 // Abstraction represents a lambda abstraction
 type Abstraction struct {
 	Loc
-	Vars []string
+	Vars []AST
 	Body AST
 }
 
 func (a *Abstraction) isAST() {}
+
+// TypedName represents a `var : Type` clause
+type TypedName struct {
+	Loc
+	Name string
+	Type AST
+}
+
+func (t *TypedName) isAST() {}
 
 // Application represents a function call
 type Application struct {
@@ -77,3 +86,20 @@ type If struct {
 }
 
 func (i *If) isAST() {}
+
+// TyName represents a primitive type in the AST
+type TyName struct {
+	Loc
+	Type string
+}
+
+func (t *TyName) isAST() {}
+
+// TyArrow represents an -> type in the AST
+type TyArrow struct {
+	Loc
+	Dom   AST
+	Range AST
+}
+
+func (t *TyArrow) isAST() {}

@@ -124,6 +124,10 @@ func (l *lexer) next() (token, interface{}, error) {
 		if unicode.IsNumber(peek) {
 			return l.number(r)
 		}
+		if peek == '>' {
+			l.rune()
+			return tokArrow, nil, nil
+		}
 		return token(r), nil, nil
 	}
 
