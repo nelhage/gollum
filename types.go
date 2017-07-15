@@ -12,6 +12,13 @@ type AtomicType struct {
 
 func (a *AtomicType) isType() {}
 
+// TypeVariable represents a type variable
+type TypeVariable struct {
+	Var int64
+}
+
+func (a *TypeVariable) isType() {}
+
 // FunctionType is the type of a Function
 type FunctionType struct {
 	Dom   Type

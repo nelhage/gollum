@@ -41,22 +41,26 @@ func (u UntypedName) Error() string {
 
 // TypeError is the type of a type error
 type TypeError struct {
-	Node       AST
-	Got        Type
-	Expected   string
-	ExpectedTy Type
+	Node     AST
+	Got      Type
+	Expected Type
 }
 
 func (t TypeError) Error() string {
-	var expect string
-	if t.ExpectedTy == nil {
-		expect = t.Expected
-	} else {
-		expect = PrintType(t.ExpectedTy)
-	}
+	expect := PrintType(t.Expected)
 
 	return fmt.Sprintf("%s: type error: expected %q got %q",
 		t.Node.Location().String(), expect, PrintType(t.Got))
+}
+
+// OccurCheck is returned if the "occurs" check fails during
+// unification
+type OccurCheck struct {
+	Node AST
+}
+
+func (o OccurCheck) Error() string {
+	return fmt.Sprintf("%s: occurs check failed", o.Node.Location().String())
 }
 
 // PrintType returns a string representation of a type
@@ -81,8 +85,27 @@ func PrintType(t Type) string {
 		for _, e := range n.Elts {
 			bits = append(bits, PrintType(e))
 		}
-		return fmt.Sprintf("(%s,)", strings.Join(bits, ", "))
+		return fmt.Sprintf("(%s)", strings.Join(bits, ", "))
+	case *TypeVariable:
+		// ceil(log_26(2**64))
+		var buf [14]byte
+		i := len(buf)
+		v := n.Var
+		for {
+			i--
+			buf[i] = byte('A' + (v % 26))
+			v /= 26
+			if v == 0 {
+				break
+			}
+		}
+
+		return string(buf[i:])
 	default:
 		panic(fmt.Sprintf("unknown type: %#v", t))
 	}
+}
+
+func bad(where string, ty Type) string {
+	return fmt.Sprintf("%s: unexpected type: %#v", where, ty)
 }

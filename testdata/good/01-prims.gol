@@ -1,8 +1,8 @@
-(fn(
+fn(
  x : int,
  y : bool,
  z : str,
-) true) (
+) { true } (
  0,
  false,
  "hello",

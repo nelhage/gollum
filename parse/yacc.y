@@ -14,7 +14,7 @@ import (
     tok *tokenStruct
 }
 
-%type   <ast>           expression literal condition
+%type   <ast>           expression brackExpr literal condition
 %type   <ast>           variable abstraction application
 
 %type   <asts>          expressionlist
@@ -48,11 +48,14 @@ expression:
         |       variable
         |       abstraction
         |       application
+        |       brackExpr
         |       '(' expression ')'
                 {
                     $$ = $2
                 }
-        |       '{'expression '}'
+
+brackExpr:
+                '{'expression '}'
                 {
                     $$ = $2
                 }
@@ -101,7 +104,7 @@ variable:       tokIdent
                 }
 
 abstraction:
-                tokFunc '(' varlist ')' expression
+                tokFunc '(' varlist ')' brackExpr
                 {
                     $$ = &lambda.Abstraction {
                         Loc: extend($1.loc, $5.Location()),

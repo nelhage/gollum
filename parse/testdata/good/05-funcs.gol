@@ -1,8 +1,8 @@
 false (
-  fn() false,
-  fn(a,) false,
-  fn(a : int) false,
-  fn(a : int, b) false,
-  fn(a : int -> int, b : int,) false,
-  fn(a : (int, int) -> int, b : int,) false
+  fn() { false },
+  fn(a,) { false } ,
+  fn(a : int) { false },
+  fn(a : int, b) { false },
+  fn(a : int -> int, b : int,) { false },
+  fn(a : (int, int) -> int, b : int,) { false },
 )

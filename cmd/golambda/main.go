@@ -58,5 +58,9 @@ func main() {
 		log.Fatalf("eval error: %v", e)
 	}
 
-	pretty.Println("value: ", v)
+	if _, ok := v.(*asteval.Closure); ok {
+		fmt.Println("value: <fun> : ", lambda.PrintType(ty))
+	} else {
+		pretty.Println("value: ", v)
+	}
 }

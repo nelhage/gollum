@@ -1,1 +1,1 @@
-fn(x : bool) dec(x)
+fn(x : bool) { dec(x) }
