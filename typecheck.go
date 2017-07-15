@@ -6,7 +6,7 @@ import (
 
 // TypeCheck typechecks an AST and returns the type of the AST
 // structure
-func TypeCheck(ast AST, env *Environment) (Type, error) {
+func TypeCheck(ast AST, env *TypeEnv) (Type, error) {
 	switch n := ast.(type) {
 	case *Boolean:
 		return boolType, nil

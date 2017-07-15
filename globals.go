@@ -1,7 +1,7 @@
 package lambda
 
 // GlobalEnv contains the default global environment
-var GlobalEnv *Environment
+var GlobalEnv *TypeEnv
 
 // GlobalTypes stores a lookup table for global type names
 var GlobalTypes map[string]Type
