@@ -67,11 +67,17 @@ func PrintType(t lambda.Type) string {
 	case *lambda.AtomicType:
 		return n.Name
 	case *lambda.FunctionType:
+		var d string
+		if dtup, ok := n.Dom.(*lambda.TupleType); ok && len(dtup.Elts) == 1 {
+			d = PrintType(dtup.Elts[0])
+		} else {
+			d = PrintType(n.Dom)
+		}
 		r := PrintType(n.Range)
 		if _, ok := n.Range.(*lambda.FunctionType); ok {
 			r = fmt.Sprintf("(%s)", r)
 		}
-		return fmt.Sprintf("%s -> %s", PrintType(n.Dom), r)
+		return fmt.Sprintf("%s -> %s", d, r)
 	case *lambda.TupleType:
 		var bits []string
 		for _, e := range n.Elts {
