@@ -12,6 +12,7 @@ var (
 	boolType = &lambda.AtomicType{Name: "bool"}
 	intType  = &lambda.AtomicType{Name: "int"}
 	strType  = &lambda.AtomicType{Name: "str"}
+	unitType = &lambda.TupleType{}
 )
 
 func init() {
@@ -28,7 +29,10 @@ func init() {
 		name string
 		ty   lambda.Type
 	}{
-		{"die", &lambda.TupleType{}},
+		{"die", &lambda.FunctionType{
+			Dom:   unitType,
+			Range: unitType,
+		}},
 		{"not", &lambda.FunctionType{
 			Dom: &lambda.TupleType{
 				Elts: []lambda.Type{boolType},
