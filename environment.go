@@ -1,15 +1,13 @@
-package typecheck
-
-import "nelhage.com/lambda"
+package lambda
 
 // Environment is the type of a typing environment
 type Environment struct {
-	Frame  map[string]lambda.Type
+	Frame  map[string]Type
 	Parent *Environment
 }
 
 // Lookup looks up a value in an environment
-func (e *Environment) Lookup(name string) lambda.Type {
+func (e *Environment) Lookup(name string) Type {
 	if e == nil {
 		return nil
 	}
@@ -21,12 +19,12 @@ func (e *Environment) Lookup(name string) lambda.Type {
 
 // Extend returns an environment that inherits from `e` but includes
 // an additional binding
-func (e *Environment) Extend(names []string, vals []lambda.Type) *Environment {
+func (e *Environment) Extend(names []string, vals []Type) *Environment {
 	if len(names) != len(vals) {
 		panic("Extend: name/value mismatch")
 	}
 	e = &Environment{
-		Frame:  make(map[string]lambda.Type, len(names)),
+		Frame:  make(map[string]Type, len(names)),
 		Parent: e,
 	}
 	for i, n := range names {

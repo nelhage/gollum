@@ -1,32 +1,30 @@
-package typecheck
+package lambda
 
 import (
 	"fmt"
-
-	"nelhage.com/lambda"
 )
 
 // TypeCheck typechecks an AST and returns the type of the AST
 // structure
-func TypeCheck(ast lambda.AST, env *Environment) (lambda.Type, error) {
+func TypeCheck(ast AST, env *Environment) (Type, error) {
 	switch n := ast.(type) {
-	case *lambda.Boolean:
+	case *Boolean:
 		return boolType, nil
-	case *lambda.String:
+	case *String:
 		return strType, nil
-	case *lambda.Integer:
+	case *Integer:
 		return intType, nil
-	case *lambda.Variable:
+	case *Variable:
 		t := env.Lookup(n.Var)
 		if t == nil {
 			return nil, UnboundVariable{ast, n.Var}
 		}
 		return t, nil
-	case *lambda.Abstraction:
+	case *Abstraction:
 		var names []string
-		var types []lambda.Type
+		var types []Type
 		for _, v := range n.Vars {
-			tv := v.(*lambda.TypedName)
+			tv := v.(*TypedName)
 			if tv.Type == nil {
 				return nil, UntypedName{tv, tv.Name}
 			}
@@ -44,19 +42,19 @@ func TypeCheck(ast lambda.AST, env *Environment) (lambda.Type, error) {
 		if e != nil {
 			return nil, e
 		}
-		return &lambda.FunctionType{
-			Dom: &lambda.TupleType{
+		return &FunctionType{
+			Dom: &TupleType{
 				Elts: types,
 			},
 			Range: rtype,
 		}, nil
-	case *lambda.Application:
+	case *Application:
 		ftype, err := TypeCheck(n.Func, env)
 		if err != nil {
 			return nil, err
 		}
 
-		fnt, ok := ftype.(*lambda.FunctionType)
+		fnt, ok := ftype.(*FunctionType)
 		if !ok {
 			return nil, TypeError{
 				Node:     n.Func,
@@ -65,7 +63,7 @@ func TypeCheck(ast lambda.AST, env *Environment) (lambda.Type, error) {
 			}
 		}
 
-		var args []lambda.Type
+		var args []Type
 		for _, a := range n.Args {
 			argType, err := TypeCheck(a, env)
 			if err != nil {
@@ -73,7 +71,7 @@ func TypeCheck(ast lambda.AST, env *Environment) (lambda.Type, error) {
 			}
 			args = append(args, argType)
 		}
-		argType := &lambda.TupleType{Elts: args}
+		argType := &TupleType{Elts: args}
 		if !Equal(fnt.Dom, argType) {
 			return nil, TypeError{
 				Node:       n,
@@ -83,7 +81,7 @@ func TypeCheck(ast lambda.AST, env *Environment) (lambda.Type, error) {
 		}
 		return fnt.Range, nil
 
-	case *lambda.If:
+	case *If:
 		cdType, err := TypeCheck(n.Condition, env)
 		if err != nil {
 			return nil, err
@@ -113,7 +111,7 @@ func TypeCheck(ast lambda.AST, env *Environment) (lambda.Type, error) {
 		}
 		return conType, nil
 
-	case *lambda.TypedName, *lambda.TyName, *lambda.TyArrow:
+	case *TypedName, *TyName, *TyArrow:
 		panic(fmt.Sprintf("bad toplevel ast: %#v", ast))
 	default:
 		panic(fmt.Sprintf("unhandled ast: %#v", ast))
@@ -121,34 +119,34 @@ func TypeCheck(ast lambda.AST, env *Environment) (lambda.Type, error) {
 }
 
 // ParseType parses an AST that refers to a type into a type object
-func ParseType(ast lambda.AST) (lambda.Type, error) {
+func ParseType(ast AST) (Type, error) {
 	switch n := ast.(type) {
-	case *lambda.TyName:
+	case *TyName:
 		ty := GlobalTypes[n.Type]
 		if ty == nil {
 			return nil, UnboundType{ast, n.Type}
 		}
 		return ty, nil
-	case *lambda.TyArrow:
+	case *TyArrow:
 		dom, err := ParseType(n.Dom)
 		if err != nil {
 			return nil, err
 		}
-		if _, ok := dom.(*lambda.TupleType); !ok {
-			dom = &lambda.TupleType{
-				Elts: []lambda.Type{dom},
+		if _, ok := dom.(*TupleType); !ok {
+			dom = &TupleType{
+				Elts: []Type{dom},
 			}
 		}
 		range_, err := ParseType(n.Range)
 		if err != nil {
 			return nil, err
 		}
-		return &lambda.FunctionType{
+		return &FunctionType{
 			Dom:   dom,
 			Range: range_,
 		}, nil
-	case *lambda.TyTuple:
-		var tys []lambda.Type
+	case *TyTuple:
+		var tys []Type
 		for _, elt := range n.Elts {
 			ty, e := ParseType(elt)
 			if e != nil {
@@ -156,29 +154,29 @@ func ParseType(ast lambda.AST) (lambda.Type, error) {
 			}
 			tys = append(tys, ty)
 		}
-		return &lambda.TupleType{Elts: tys}, nil
+		return &TupleType{Elts: tys}, nil
 	default:
 		panic(fmt.Sprintf("bad ast node to ParseType: %#v", ast))
 	}
 }
 
 // Equal checks two types for equality
-func Equal(l, r lambda.Type) bool {
+func Equal(l, r Type) bool {
 	switch t := l.(type) {
-	case *lambda.AtomicType:
-		ra, ok := r.(*lambda.AtomicType)
+	case *AtomicType:
+		ra, ok := r.(*AtomicType)
 		if !ok {
 			return false
 		}
 		return t.Name == ra.Name
-	case *lambda.FunctionType:
-		rf, ok := r.(*lambda.FunctionType)
+	case *FunctionType:
+		rf, ok := r.(*FunctionType)
 		if !ok {
 			return false
 		}
 		return Equal(t.Dom, rf.Dom) && Equal(t.Range, rf.Range)
-	case *lambda.TupleType:
-		rt, ok := r.(*lambda.TupleType)
+	case *TupleType:
+		rt, ok := r.(*TupleType)
 		if !ok {
 			return false
 		}

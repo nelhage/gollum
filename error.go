@@ -1,15 +1,13 @@
-package typecheck
+package lambda
 
 import (
 	"fmt"
 	"strings"
-
-	"nelhage.com/lambda"
 )
 
 // UnboundVariable is the error of referring to an undefined variable
 type UnboundVariable struct {
-	Node lambda.AST
+	Node AST
 	Var  string
 }
 
@@ -20,7 +18,7 @@ func (u UnboundVariable) Error() string {
 
 // UnboundType is the error of referring to an undefined type name
 type UnboundType struct {
-	Node lambda.AST
+	Node AST
 	Name string
 }
 
@@ -32,7 +30,7 @@ func (u UnboundType) Error() string {
 // UntypedName is returned when typechecking an abstraction with an
 // untyped argument
 type UntypedName struct {
-	Node lambda.AST
+	Node AST
 	Var  string
 }
 
@@ -43,10 +41,10 @@ func (u UntypedName) Error() string {
 
 // TypeError is the type of a type error
 type TypeError struct {
-	Node       lambda.AST
-	Got        lambda.Type
+	Node       AST
+	Got        Type
 	Expected   string
-	ExpectedTy lambda.Type
+	ExpectedTy Type
 }
 
 func (t TypeError) Error() string {
@@ -62,23 +60,23 @@ func (t TypeError) Error() string {
 }
 
 // PrintType returns a string representation of a type
-func PrintType(t lambda.Type) string {
+func PrintType(t Type) string {
 	switch n := t.(type) {
-	case *lambda.AtomicType:
+	case *AtomicType:
 		return n.Name
-	case *lambda.FunctionType:
+	case *FunctionType:
 		var d string
-		if dtup, ok := n.Dom.(*lambda.TupleType); ok && len(dtup.Elts) == 1 {
+		if dtup, ok := n.Dom.(*TupleType); ok && len(dtup.Elts) == 1 {
 			d = PrintType(dtup.Elts[0])
 		} else {
 			d = PrintType(n.Dom)
 		}
 		r := PrintType(n.Range)
-		if _, ok := n.Range.(*lambda.FunctionType); ok {
+		if _, ok := n.Range.(*FunctionType); ok {
 			r = fmt.Sprintf("(%s)", r)
 		}
 		return fmt.Sprintf("%s -> %s", d, r)
-	case *lambda.TupleType:
+	case *TupleType:
 		var bits []string
 		for _, e := range n.Elts {
 			bits = append(bits, PrintType(e))

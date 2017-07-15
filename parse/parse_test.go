@@ -1,4 +1,4 @@
-package parse
+package parse_test
 
 import (
 	"bytes"
@@ -6,20 +6,17 @@ import (
 	"log"
 	"testing"
 
-	"nelhage.com/lambda/lambdatest"
+	"nelhage.com/lambda/parse"
+	"nelhage.com/lambda/testutil"
 
 	"github.com/kr/pretty"
 )
 
 func TestParser(t *testing.T) {
-	good := lambdatest.ListDir(t, "good")
+	good := testutil.ListDir(t, "good")
 	for _, tc := range good {
 		t.Run("good/"+tc.Name, func(t *testing.T) {
-			buf := bytes.NewBuffer(tc.Body)
-			ast, err := Parse(buf, tc.Name)
-			if err != nil {
-				log.Fatalf("parse(%q): %v", tc.Name, err)
-			}
+			ast := testutil.MustParse(t, tc)
 			ioutil.WriteFile(
 				tc.Path+".ast",
 				[]byte(pretty.Sprint(ast)),
@@ -27,11 +24,11 @@ func TestParser(t *testing.T) {
 		})
 	}
 
-	bad := lambdatest.ListDir(t, "bad")
+	bad := testutil.ListDir(t, "bad")
 	for _, tc := range bad {
 		t.Run("bad/"+tc.Name, func(t *testing.T) {
 			buf := bytes.NewBuffer(tc.Body)
-			ast, err := Parse(buf, tc.Name)
+			ast, err := parse.Parse(buf, tc.Name)
 			if err == nil {
 				ioutil.WriteFile(
 					tc.Path+".ast",

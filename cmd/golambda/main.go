@@ -9,9 +9,9 @@ import (
 
 	"github.com/kr/pretty"
 
+	"nelhage.com/lambda"
 	"nelhage.com/lambda/asteval"
 	"nelhage.com/lambda/parse"
-	"nelhage.com/lambda/typecheck"
 )
 
 func main() {
@@ -45,12 +45,12 @@ func main() {
 		pretty.Println("ast: ", ast)
 	}
 
-	ty, tyErr := typecheck.TypeCheck(ast, typecheck.GlobalEnv)
+	ty, tyErr := lambda.TypeCheck(ast, lambda.GlobalEnv)
 	if tyErr != nil {
 		log.Fatalf("typechecking: %v", tyErr)
 	}
 	if *printType {
-		fmt.Println("type: ", typecheck.PrintType(ty))
+		fmt.Println("type: ", lambda.PrintType(ty))
 	}
 
 	v, e := asteval.Eval(ast, asteval.GlobalEnv)

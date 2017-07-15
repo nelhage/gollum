@@ -1,11 +1,15 @@
-package lambdatest
+package testutil
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
 	"testing"
+
+	"nelhage.com/lambda"
+	"nelhage.com/lambda/parse"
 )
 
 // TestFile is a test case loaded from a testdata directory
@@ -44,4 +48,14 @@ func ListDir(t *testing.T, dir string) []TestFile {
 		out = append(out, TestFile{Name: fi.Name(), Path: p, Body: b})
 	}
 	return out
+}
+
+// MustParse parses a TestFile into an AST, or aborts via t.Fatal
+func MustParse(t *testing.T, tc TestFile) lambda.AST {
+	buf := bytes.NewBuffer(tc.Body)
+	ast, err := parse.Parse(buf, tc.Name)
+	if err != nil {
+		t.Fatalf("parse(%q): %v", tc.Name, err)
+	}
+	return ast
 }
