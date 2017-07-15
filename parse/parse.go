@@ -33,5 +33,5 @@ type Error struct {
 
 // Error implements the error interface
 func (p *Error) Error() string {
-	return fmt.Sprintf("%s:%d: %s", p.Loc.File, p.Loc.Begin, p.Err)
+	return fmt.Sprintf("%s: %s", p.Loc.String(), p.Err)
 }
