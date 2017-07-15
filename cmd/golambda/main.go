@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -22,8 +23,8 @@ func main() {
 
 	var r io.Reader
 	var path string
-	if len(os.Args) > 1 {
-		path = os.Args[1]
+	if len(flag.Args()) > 1 {
+		path = flag.Arg(0)
 		f, e := os.Open(path)
 		if e != nil {
 			log.Fatalf("open(%q): %v", path, e)
@@ -49,7 +50,7 @@ func main() {
 		log.Fatalf("typechecking: %v", tyErr)
 	}
 	if *printType {
-		pretty.Println("type: ", ty)
+		fmt.Println("type: ", typecheck.PrintType(ty))
 	}
 
 	v, e := asteval.Eval(ast, asteval.GlobalEnv)
