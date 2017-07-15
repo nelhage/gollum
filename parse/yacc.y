@@ -50,9 +50,13 @@ expression:
         |       application
         |       '(' expression ')'
                 {
-                    // TODO: extend location somehow
                     $$ = $2
                 }
+        |       '{'expression '}'
+                {
+                    $$ = $2
+                }
+
 
 literal:
                 tokBoolean
