@@ -2,10 +2,17 @@ package lambda
 
 import "fmt"
 
+// Pos represents a position within a file
+type Pos struct {
+	// Offset within the file in bytes
+	Offset       uint
+	Line, Column uint
+}
+
 // Loc represents a source location.
 type Loc struct {
 	File       string
-	Begin, End uint
+	Begin, End Pos
 }
 
 // AST is the type of an AST in the language
@@ -22,7 +29,7 @@ func (l Loc) Location() Loc {
 
 // String implements Stringer for Loc
 func (l Loc) String() string {
-	return fmt.Sprintf("%s:%d", l.File, l.Begin)
+	return fmt.Sprintf("%s:%d:%d", l.File, l.Begin.Line, l.Begin.Column)
 }
 
 // Boolean represents a boolean literal

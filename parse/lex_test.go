@@ -39,7 +39,11 @@ func lex(s string) []fullTok {
 
 func TestLex(t *testing.T) {
 	l := func(b, e uint) lambda.Loc {
-		return lambda.Loc{File: "<test>", Begin: b, End: e}
+		return lambda.Loc{
+			File:  "<test>",
+			Begin: lambda.Pos{Offset: b, Line: 0, Column: b},
+			End:   lambda.Pos{Offset: e, Line: 0, Column: e},
+		}
 	}
 
 	cases := []struct {

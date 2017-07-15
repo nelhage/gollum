@@ -12,7 +12,7 @@ import (
 )
 
 type lexer struct {
-	off      uint
+	pos      lambda.Pos
 	filename string
 
 	ioErr error
@@ -94,13 +94,13 @@ func (l *lexer) token(t token, val interface{}) (token, interface{}, error) {
 }
 
 func (l *lexer) Loc() lambda.Loc {
-	return lambda.Loc{File: l.filename, Begin: l.off, End: l.r.off}
+	return lambda.Loc{File: l.filename, Begin: l.pos, End: l.r.pos}
 }
 
 func (l *lexer) next() (token, interface{}, error) {
 	var r rune
 	for {
-		l.off = l.r.off
+		l.pos = l.r.pos
 		r = l.rune()
 		if r == 0 {
 			return l.token(eof, nil)
@@ -199,7 +199,7 @@ func extend(l, r lambda.Loc) lambda.Loc {
 	if l.File != r.File {
 		panic("extend filename")
 	}
-	if l.Begin > r.End {
+	if l.Begin.Offset > r.End.Offset {
 		panic("extend order")
 	}
 	return lambda.Loc{
