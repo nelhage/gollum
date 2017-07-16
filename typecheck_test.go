@@ -2,10 +2,15 @@ package lambda_test
 
 import (
 	"io/ioutil"
+	"regexp"
 	"testing"
 
 	"nelhage.com/lambda"
 	"nelhage.com/lambda/testutil"
+)
+
+var (
+	typeComment = regexp.MustCompile(`^# type: ([^\n]*)\n`)
 )
 
 func TestTypeCheck(t *testing.T) {
@@ -22,6 +27,17 @@ func TestTypeCheck(t *testing.T) {
 				tc.Path+".out",
 				[]byte(lambda.PrintType(ty)),
 				0644)
+
+			groups := typeComment.FindSubmatch(tc.Body)
+			if groups != nil {
+				got := lambda.PrintType(ty)
+				want := groups[1]
+				if string(want) != got {
+					t.Errorf("want type=%q got=%q",
+						want, got,
+					)
+				}
+			}
 		})
 	}
 

@@ -1,0 +1,10 @@
+# type: int
+fn(x) {
+ fn(y) {
+  fn(z) {
+   fn(w) {
+    w
+   }(z)
+  }(y)
+ }(x)
+}(0)
