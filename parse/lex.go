@@ -99,24 +99,29 @@ func (l *lexer) Loc() lambda.Loc {
 
 func (l *lexer) next() (token, interface{}, error) {
 	var r rune
+skipws:
 	for {
 		l.pos = l.r.pos
 		r = l.rune()
-		if r == 0 {
+		switch {
+		case r == 0:
 			return l.token(eof, nil)
+		case unicode.IsSpace(r):
+			continue skipws
+		case r == '#':
+			l.readWhile(r, func(r rune) bool { return r != '\n' })
+			l.rune()
+			continue skipws
 		}
-		if !unicode.IsSpace(r) {
-			break
-		}
+		break
 	}
 
-	if unicode.Is(unicode.Pc, r) || unicode.IsLetter(r) {
+	switch {
+	case unicode.Is(unicode.Pc, r) || unicode.IsLetter(r):
 		return l.ident(r)
-	}
-	if unicode.IsNumber(r) {
+	case unicode.IsNumber(r):
 		return l.number(r)
-	}
-	if r == '-' {
+	case r == '-':
 		peek := l.peek()
 		if r == 0 {
 			return l.token(token(r), nil)
@@ -129,12 +134,11 @@ func (l *lexer) next() (token, interface{}, error) {
 			return tokArrow, nil, nil
 		}
 		return token(r), nil, nil
-	}
-
-	if r == '"' {
+	case r == '"':
 		return l.string(r)
+	default:
+		return token(r), nil, nil
 	}
-	return token(r), nil, nil
 }
 
 func (l *lexer) number(r rune) (token, interface{}, error) {

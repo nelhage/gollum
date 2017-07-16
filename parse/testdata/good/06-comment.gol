@@ -1,0 +1,6 @@
+# top
+fn(x,
+# inside args
+y, # eolf
+){ false # comment
+}
