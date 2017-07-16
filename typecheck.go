@@ -10,7 +10,16 @@ type constraint struct {
 	left, right Type
 }
 
-type typeMap map[int64]Type
+type typeSub struct {
+	v  int64
+	ty Type
+}
+
+type typeMap []typeSub
+
+func (t typeMap) andThen(v int64, ty Type) typeMap {
+	return append(t, typeSub{v, ty})
+}
 
 type tcState struct {
 	nextSym int64
@@ -43,8 +52,10 @@ func TypeCheck(ast AST, env *TypeEnv) (Type, error) {
 func mapTypes(mapping typeMap, ty Type) Type {
 	return foldType(func(t Type) Type {
 		if v, ok := t.(*TypeVariable); ok {
-			if out, ok := mapping[v.Var]; ok {
-				return out
+			for i, m := range mapping {
+				if v.Var == m.v {
+					return mapTypes(mapping[i+1:], m.ty)
+				}
 			}
 		}
 		return t
@@ -72,7 +83,7 @@ func occur(v *TypeVariable, ty Type) bool {
 }
 
 func unify(cs []constraint) (typeMap, error) {
-	out := make(typeMap)
+	var out typeMap
 	for len(cs) > 0 {
 		c := cs[0]
 		cs = cs[1:]
@@ -89,12 +100,12 @@ func unify(cs []constraint) (typeMap, error) {
 				return nil, &OccurCheck{c.node}
 			}
 
-			out[v.Var] = right
+			out = out.andThen(v.Var, right)
 		} else if v, ok := right.(*TypeVariable); ok {
 			if occur(v, left) {
 				return nil, &OccurCheck{c.node}
 			}
-			out[v.Var] = left
+			out = out.andThen(v.Var, left)
 		} else if lf, ok := left.(*FunctionType); ok {
 			rf, ok := right.(*FunctionType)
 			if !ok {
