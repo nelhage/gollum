@@ -25,7 +25,7 @@ func (t typeMap) andThen(v int64, ty Type) typeMap {
 
 type tcState struct {
 	nextSym int64
-	env     typeMap
+	soln    typeMap
 }
 
 func (tcs *tcState) gensym() Type {
@@ -55,6 +55,14 @@ func mapTypes(mapping typeMap, ty Type) Type {
 	}, ty)
 }
 
+func (tcs *tcState) addMapping(from int64, to Type) {
+	tcs.soln = tcs.soln.andThen(from, to)
+}
+
+func (tcs *tcState) mapTypes(ty Type) Type {
+	return mapTypes(tcs.soln, ty)
+}
+
 func occur(v *TypeVariable, ty Type) bool {
 	switch n := ty.(type) {
 	case *AtomicType:
@@ -75,14 +83,13 @@ func occur(v *TypeVariable, ty Type) bool {
 	}
 }
 
-func unify(cs []constraint) (typeMap, error) {
-	var out typeMap
+func (tcs *tcState) unify(cs []constraint) error {
 	for len(cs) > 0 {
 		c := cs[0]
 		cs = cs[1:]
 
-		left := mapTypes(out, c.left)
-		right := mapTypes(out, c.right)
+		left := tcs.mapTypes(c.left)
+		right := tcs.mapTypes(c.right)
 
 		if left == right {
 			continue
@@ -90,19 +97,19 @@ func unify(cs []constraint) (typeMap, error) {
 
 		if v, ok := left.(*TypeVariable); ok {
 			if occur(v, right) {
-				return nil, &OccurCheck{c.node}
+				return &OccurCheck{c.node}
 			}
 
-			out = out.andThen(v.Var, right)
+			tcs.addMapping(v.Var, right)
 		} else if v, ok := right.(*TypeVariable); ok {
 			if occur(v, left) {
-				return nil, &OccurCheck{c.node}
+				return &OccurCheck{c.node}
 			}
-			out = out.andThen(v.Var, left)
+			tcs.addMapping(v.Var, left)
 		} else if lf, ok := left.(*FunctionType); ok {
 			rf, ok := right.(*FunctionType)
 			if !ok {
-				return nil, &TypeError{
+				return &TypeError{
 					Node:     c.node,
 					Got:      right,
 					Expected: left,
@@ -116,7 +123,7 @@ func unify(cs []constraint) (typeMap, error) {
 		} else if lt, ok := left.(*TupleType); ok {
 			rt, ok := right.(*TupleType)
 			if !ok || len(lt.Elts) != len(rt.Elts) {
-				return nil, &TypeError{
+				return &TypeError{
 					Node:     c.node,
 					Got:      right,
 					Expected: left,
@@ -130,7 +137,7 @@ func unify(cs []constraint) (typeMap, error) {
 		} else if la, ok := left.(*AtomicType); ok {
 			ra, ok := right.(*AtomicType)
 			if !ok || ra.Name != la.Name {
-				return nil, &TypeError{
+				return &TypeError{
 					Node:     c.node,
 					Got:      right,
 					Expected: left,
@@ -140,7 +147,7 @@ func unify(cs []constraint) (typeMap, error) {
 			panic(fmt.Sprintf("occurs: unexpected lhs: %#v", left))
 		}
 	}
-	return out, nil
+	return nil
 }
 
 func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
@@ -156,15 +163,14 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 		}
 	}
 	for i := range cs {
-		cs[i].left = mapTypes(tcs.env, cs[i].left)
-		cs[i].right = mapTypes(tcs.env, cs[i].right)
+		cs[i].left = tcs.mapTypes(cs[i].left)
+		cs[i].right = tcs.mapTypes(cs[i].right)
 	}
-	soln, err := unify(cs)
-	tcs.env = append(tcs.env, soln...)
+	err = tcs.unify(cs)
 	if err != nil {
 		return nil, err
 	}
-	mapped := mapTypes(tcs.env, ty)
+	mapped := tcs.mapTypes(ty)
 	if debug {
 		log.Printf("mapped: %s", PrintType(mapped))
 	}
