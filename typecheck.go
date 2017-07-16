@@ -23,6 +23,7 @@ func (t typeMap) andThen(v int64, ty Type) typeMap {
 
 type tcState struct {
 	nextSym int64
+	env     typeMap
 }
 
 func (tcs *tcState) gensym() Type {
@@ -36,17 +37,7 @@ func (tcs *tcState) gensym() Type {
 // structure
 func TypeCheck(ast AST, env *TypeEnv) (Type, error) {
 	var tcs tcState
-	ty, cs, err := tcs.typecheck(ast, env)
-	log.Printf("type: %s", PrintType(ty))
-	log.Printf("constraints: ")
-	for _, c := range cs {
-		log.Printf("  %s = %s", PrintType(c.left), PrintType(c.right))
-	}
-	soln, err := unify(cs)
-	if err != nil {
-		return nil, err
-	}
-	return mapTypes(soln, ty), nil
+	return tcs.typeCheck(ast, env)
 }
 
 func mapTypes(mapping typeMap, ty Type) Type {
@@ -150,7 +141,31 @@ func unify(cs []constraint) (typeMap, error) {
 	return out, nil
 }
 
-func (tcs *tcState) typecheck(ast AST, env *TypeEnv) (Type, []constraint, error) {
+func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
+	ty, cs, err := tcs.constraints(ast, env)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("type: %s", PrintType(ty))
+	log.Printf("constraints: ")
+	for _, c := range cs {
+		log.Printf("  %s = %s", PrintType(c.left), PrintType(c.right))
+	}
+	for i := range cs {
+		cs[i].left = mapTypes(tcs.env, cs[i].left)
+		cs[i].right = mapTypes(tcs.env, cs[i].right)
+	}
+	soln, err := unify(cs)
+	tcs.env = append(tcs.env, soln...)
+	if err != nil {
+		return nil, err
+	}
+	mapped := mapTypes(tcs.env, ty)
+	log.Printf("mapped: %s", PrintType(mapped))
+	return mapped, nil
+}
+
+func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, error) {
 	switch n := ast.(type) {
 	case *Boolean:
 		return boolType, nil, nil
@@ -184,7 +199,7 @@ func (tcs *tcState) typecheck(ast AST, env *TypeEnv) (Type, []constraint, error)
 		}
 		env := env.Extend(names, types)
 
-		rtype, cs, e := tcs.typecheck(n.Body, env)
+		rtype, cs, e := tcs.constraints(n.Body, env)
 
 		if e != nil {
 			return nil, nil, e
@@ -196,55 +211,48 @@ func (tcs *tcState) typecheck(ast AST, env *TypeEnv) (Type, []constraint, error)
 			Range: rtype,
 		}, cs, nil
 	case *Application:
-		var constraints []constraint
-		ftype, constraints, err := tcs.typecheck(n.Func, env)
+		ftype, err := tcs.typeCheck(n.Func, env)
 		if err != nil {
 			return nil, nil, err
 		}
 
 		var args []Type
 		for _, a := range n.Args {
-			argType, cs, err := tcs.typecheck(a, env)
+			argType, err := tcs.typeCheck(a, env)
 			if err != nil {
 				return nil, nil, err
 			}
-			constraints = append(constraints, cs...)
 			args = append(args, argType)
 		}
 		argType := &TupleType{Elts: args}
 		rng := tcs.gensym()
-		constraints = append(constraints, constraint{
+		constraints := []constraint{{
 			node: ast,
 			left: ftype,
 			right: &FunctionType{
 				Dom:   argType,
 				Range: rng,
 			},
-		})
+		}}
 		return rng, constraints, nil
 
 	case *If:
-		var constraints []constraint
-		cdType, cs, err := tcs.typecheck(n.Condition, env)
+		cdType, err := tcs.typeCheck(n.Condition, env)
 		if err != nil {
 			return nil, nil, err
 		}
-		constraints = cs
-		conType, cs, err := tcs.typecheck(n.Consequent, env)
+		conType, err := tcs.typeCheck(n.Consequent, env)
 		if err != nil {
 			return nil, nil, err
 		}
-		constraints = append(constraints, cs...)
-		altType, cs, err := tcs.typecheck(n.Alternate, env)
+		altType, err := tcs.typeCheck(n.Alternate, env)
 		if err != nil {
 			return nil, nil, err
 		}
-		constraints = append(constraints, cs...)
-		constraints = append(constraints, constraint{
-			ast, boolType, cdType,
-		}, constraint{
-			ast, conType, altType,
-		})
+		constraints := []constraint{
+			{ast, boolType, cdType},
+			{ast, conType, altType},
+		}
 
 		return conType, constraints, nil
 
