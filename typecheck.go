@@ -5,6 +5,8 @@ import (
 	"log"
 )
 
+const debug = false
+
 type constraint struct {
 	node        AST
 	left, right Type
@@ -146,10 +148,12 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("type: %s", PrintType(ty))
-	log.Printf("constraints: ")
-	for _, c := range cs {
-		log.Printf("  %s = %s", PrintType(c.left), PrintType(c.right))
+	if debug {
+		log.Printf("type: %s", PrintType(ty))
+		log.Printf("constraints: ")
+		for _, c := range cs {
+			log.Printf("  %s = %s", PrintType(c.left), PrintType(c.right))
+		}
 	}
 	for i := range cs {
 		cs[i].left = mapTypes(tcs.env, cs[i].left)
@@ -161,7 +165,9 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 		return nil, err
 	}
 	mapped := mapTypes(tcs.env, ty)
-	log.Printf("mapped: %s", PrintType(mapped))
+	if debug {
+		log.Printf("mapped: %s", PrintType(mapped))
+	}
 	return mapped, nil
 }
 
