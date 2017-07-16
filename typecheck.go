@@ -13,16 +13,15 @@ type constraint struct {
 }
 
 type typeSub struct {
-	v    int64
-	ty   Type
-	asOf int
+	v  int64
+	ty Type
 }
 
 type typeMap []*typeSub
 
 type tcState struct {
 	nextSym int64
-	soln    typeMap
+	soln    map[int64]*typeSub
 }
 
 func (tcs *tcState) gensym() Type {
@@ -35,23 +34,17 @@ func (tcs *tcState) gensym() Type {
 // TypeCheck typechecks an AST and returns the type of the AST
 // structure
 func TypeCheck(ast AST, env *TypeEnv) (Type, error) {
-	var tcs tcState
+	tcs := tcState{soln: make(map[int64]*typeSub)}
 	return tcs.typeCheck(ast, env)
 }
 
-func (tcs *tcState) mapPartial(mapping typeMap, ty Type) Type {
-	if len(mapping) == 0 {
-		return ty
-	}
+func (tcs *tcState) mapTypes(ty Type) Type {
 	return foldType(func(t Type) Type {
 		if v, ok := t.(*TypeVariable); ok {
-			for _, m := range mapping {
-				if v.Var == m.v {
-					mapped := tcs.mapPartial(tcs.soln[m.asOf:], m.ty)
-					m.asOf = len(tcs.soln)
-					m.ty = mapped
-					return m.ty
-				}
+			if ent, ok := tcs.soln[v.Var]; ok {
+				mapped := tcs.mapTypes(ent.ty)
+				ent.ty = mapped
+				return ent.ty
 			}
 		}
 		return t
@@ -59,12 +52,7 @@ func (tcs *tcState) mapPartial(mapping typeMap, ty Type) Type {
 }
 
 func (tcs *tcState) addMapping(from int64, to Type) {
-	tcs.soln = append(tcs.soln,
-		&typeSub{from, to, len(tcs.soln) + 1})
-}
-
-func (tcs *tcState) mapTypes(ty Type) Type {
-	return tcs.mapPartial(tcs.soln, ty)
+	tcs.soln[from] = &typeSub{from, to}
 }
 
 func occur(v *TypeVariable, ty Type) bool {
