@@ -23,7 +23,7 @@ func main() {
 
 	var r io.Reader
 	var path string
-	if len(flag.Args()) > 1 {
+	if len(flag.Args()) > 0 {
 		path = flag.Arg(0)
 		f, e := os.Open(path)
 		if e != nil {
