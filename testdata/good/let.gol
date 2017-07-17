@@ -5,10 +5,13 @@ let
 in {
   let plus = fn(l,r) {l(s,r)}
   in {
-    let mul = fn(l,r){l(fn(a){plus(a,r)}, z)}
+    let mul = fn(l,r){
+      fn(ss, zz) {
+       l(fn(a) { r(ss, a) }, zz)
+      }
+    }
     in {
-      # c2n(mul(s(s(z)), s(s(s(s(z))))))
-      c2n(s(s(s(z))))
+      c2n(mul(s(s(z)), s(s(s(s(z))))))
     }
   }
 }

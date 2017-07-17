@@ -4,31 +4,44 @@ package lambda
 type TypeEnv struct {
 	Frame  map[string]Type
 	Parent *TypeEnv
+	Vars   []int64
 }
 
 // Lookup looks up a value in an environment
 func (e *TypeEnv) Lookup(name string) Type {
-	if e == nil {
-		return nil
+	for e != nil {
+		if t := e.Frame[name]; t != nil {
+			return t
+		}
+		e = e.Parent
 	}
-	if t := e.Frame[name]; t != nil {
-		return t
-	}
-	return e.Parent.Lookup(name)
+
+	return nil
 }
 
 // Extend returns an environment that inherits from `e` but includes
 // an additional set of bindings
-func (e *TypeEnv) Extend(names []string, vals []Type) *TypeEnv {
+func (e *TypeEnv) Extend(names []string, vals []Type, vars []int64) *TypeEnv {
 	if len(names) != len(vals) {
 		panic("Extend: name/value mismatch")
 	}
 	e = &TypeEnv{
 		Frame:  make(map[string]Type, len(names)),
 		Parent: e,
+		Vars:   vars,
 	}
 	for i, n := range names {
 		e.Frame[n] = vals[i]
 	}
 	return e
+}
+
+// BoundVars returns a list of all type variables bound in e
+func (e *TypeEnv) BoundVars() []int64 {
+	var out []int64
+	for e != nil {
+		out = append(out, e.Vars...)
+		e = e.Parent
+	}
+	return out
 }

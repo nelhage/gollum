@@ -60,7 +60,7 @@ func init() {
 		names[i] = g.name
 		types[i] = g.ty
 	}
-	GlobalEnv = GlobalEnv.Extend(names, types)
+	GlobalEnv = GlobalEnv.Extend(names, types, nil)
 
 	GlobalTypes = make(map[string]Type)
 

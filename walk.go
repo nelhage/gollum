@@ -1,18 +1,20 @@
 package lambda
 
-func foldType(fn func(Type) Type, ty Type) Type {
+func mapVars(fn func(*TypeVariable) Type, ty Type) Type {
 	switch n := ty.(type) {
-	case *AtomicType, *TypeVariable:
-		return fn(ty)
+	case *TypeVariable:
+		return fn(n)
+	case *AtomicType:
+		return n
 	case *FunctionType:
 		return &FunctionType{
-			Dom:   foldType(fn, n.Dom),
-			Range: foldType(fn, n.Range),
+			Dom:   mapVars(fn, n.Dom),
+			Range: mapVars(fn, n.Range),
 		}
 	case *TupleType:
 		elts := make([]Type, len(n.Elts))
 		for i, e := range n.Elts {
-			elts[i] = foldType(fn, e)
+			elts[i] = mapVars(fn, e)
 		}
 		return &TupleType{elts}
 	default:
