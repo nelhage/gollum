@@ -1,2 +1,2 @@
 # type: int -> bool -> bool
-fn(w) { if true then false else w(0) end }
+fn(w) { if true { false } else { w(0) } }

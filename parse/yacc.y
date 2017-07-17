@@ -85,13 +85,13 @@ literal:
                 }
 
 condition:
-                tokIf expression tokThen expression tokElse expression tokEnd
+                tokIf expression brackExpr tokElse brackExpr
                 {
                     $$ = &lambda.If{
-                        Loc: extend($1.loc, $6.Location()),
+                        Loc: extend($1.loc, $5.Location()),
                         Condition: $2,
-                        Consequent: $4,
-                        Alternate: $6,
+                        Consequent: $3,
+                        Alternate: $5,
                     }
                 }
 

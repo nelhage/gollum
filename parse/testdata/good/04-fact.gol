@@ -5,11 +5,11 @@ fn (Y, fh) {Y(fh)(6)} (
   },
   fn(fact) {
     fn(x) {
-     if iszero(x) then
+     if iszero(x) {
        1
-     else
+     } else {
        mul(x, fact(dec(x)))
-     end
+     }
     }
   }
 )
