@@ -1,0 +1,6 @@
+let z = fn(s){fn(z){z}} in {
+let s = fn(n){fn(s){fn(z){s(n(s)(z))}}} in {
+let add = fn(n){fn(m){n(s)(m)}} in {
+let mul = fn(n){fn(m){n(add(m))(z)}} in {
+  mul(s(s(s(z))))(s(s(z)))
+}}}}
