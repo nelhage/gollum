@@ -5,7 +5,7 @@ let
 in {
   let plus = fn(l,r) {l(s,r)}
   in {
-    let mul = fn(l,r){l(fn(a) {r(s, a)}, z)}
+    let mul = fn(l,r){l(fn(a) {plus(r, a)}, z)}
     in {
       c2n(mul(s(s(z)), s(s(s(s(z))))))
     }
