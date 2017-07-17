@@ -1,0 +1,17 @@
+let
+  Y = fn(f) {
+    (fn(x) { f(fn(v) { x(x)(v) }) })
+    (fn(x) { f(fn(v) { x(x)(v) }) })
+  },
+  fh = fn(fact) {
+    fn(x) {
+     if iszero(x) {
+       1
+     } else {
+       mul(x, fact(dec(x)))
+     }
+    }
+  }
+in {
+  Y(fh)(6)
+}

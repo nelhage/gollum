@@ -18,8 +18,12 @@ func main() {
 	var (
 		printAst  = flag.Bool("ast", false, "pretty-print the AST")
 		printType = flag.Bool("type", false, "pretty-print the type")
+		untyped   = flag.Bool("untyped", false, "Don't typecheck")
 	)
 	flag.Parse()
+	if *untyped && *printType {
+		log.Fatal("can't print types if not typechecking")
+	}
 
 	var r io.Reader
 	var path string
@@ -45,12 +49,15 @@ func main() {
 		pretty.Println("ast: ", ast)
 	}
 
-	ty, tyErr := lambda.TypeCheck(ast, lambda.GlobalEnv)
-	if tyErr != nil {
-		log.Fatalf("typechecking: %v", tyErr)
-	}
-	if *printType {
-		fmt.Println("type: ", lambda.PrintType(ty))
+	var ty lambda.Type
+	if !*untyped {
+		ty, err = lambda.TypeCheck(ast, lambda.GlobalEnv)
+		if err != nil {
+			log.Fatalf("typechecking: %v", err)
+		}
+		if *printType {
+			fmt.Println("type: ", lambda.PrintType(ty))
+		}
 	}
 
 	v, e := asteval.Eval(ast, asteval.GlobalEnv)
@@ -58,8 +65,12 @@ func main() {
 		log.Fatalf("eval error: %v", e)
 	}
 
-	if _, ok := v.(*asteval.Closure); ok {
-		fmt.Println("value: <fun> : ", lambda.PrintType(ty))
+	if cl, ok := v.(*asteval.Closure); ok {
+		if *untyped {
+			fmt.Printf("value: <fun>/%d\n", len(cl.Args))
+		} else {
+			fmt.Println("value: <fun> : ", lambda.PrintType(ty))
+		}
 	} else {
 		pretty.Println("value: ", v)
 	}

@@ -62,6 +62,21 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 		}
 		return Eval(n.Alternate, e)
 
+	case *lambda.Let:
+		var names []string
+		var vals []Value
+		for _, v := range n.Bindings {
+			nb := v.(*lambda.NameBinding)
+			val, err := Eval(nb.Value, e)
+			if err != nil {
+				return nil, err
+			}
+			vals = append(vals, val)
+			name := nb.Var.(*lambda.TypedName).Name
+			names = append(names, name)
+		}
+		return Eval(n.Body, e.Extend(names, vals))
+
 	default:
 		panic(fmt.Sprintf("unknown ast: %#v", a))
 	}
