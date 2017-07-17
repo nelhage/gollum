@@ -29,7 +29,7 @@ func (l Loc) Location() Loc {
 
 // String implements Stringer for Loc
 func (l Loc) String() string {
-	return fmt.Sprintf("%s:%d:%d", l.File, l.Begin.Line+1, l.Begin.Column+1)
+	return fmt.Sprintf("%s:%d:%d", l.File, l.Begin.Line+1, l.Begin.Column)
 }
 
 // Boolean represents a boolean literal
