@@ -57,7 +57,7 @@ func TestTypeCheck(t *testing.T) {
 func BenchmarkTypeCheck(b *testing.B) {
 	good := testutil.ListDir(b, "good")
 	for _, tc := range good {
-		b.Run("good/"+tc.Name, func(b *testing.B) {
+		b.Run(tc.Name, func(b *testing.B) {
 			ast := testutil.MustParse(b, tc)
 			b.ReportAllocs()
 			for i := 0; i < b.N; i++ {
