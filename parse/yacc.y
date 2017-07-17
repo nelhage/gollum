@@ -15,18 +15,23 @@ import (
 }
 
 %type   <ast>           expression brackExpr literal condition
-%type   <ast>           variable abstraction application
+%type   <ast>           variable abstraction application let
 
-%type   <asts>          expressionlist
+%type   <asts>          expressionList
 %type   <asts>          expressions
 
-%type   <asts>          varlist
+%type   <asts>          varList
 %type   <asts>          vars
+
 %type   <ast>           typedecl
 %type   <ast>           type
 %type   <asts>          tupleType
 
-%token  <tok>           tokFunc tokIf tokThen tokElse tokEnd
+%type   <asts>          bindingList
+%type   <asts>          bindings
+%type   <ast>           binding
+
+%token  <tok>           tokFunc tokIf tokElse tokLet tokIn
 %token  <tok>           tokBoolean tokNumber tokStr
 %token  <tok>           tokIdent
 %token  <tok>           tokArrow
@@ -49,6 +54,7 @@ expression:
         |       abstraction
         |       application
         |       brackExpr
+        |       let
         |       '(' expression ')'
                 {
                     $$ = $2
@@ -104,7 +110,7 @@ variable:       tokIdent
                 }
 
 abstraction:
-                tokFunc '(' varlist ')' brackExpr
+                tokFunc '(' varList ')' brackExpr
                 {
                     $$ = &lambda.Abstraction {
                         Loc: extend($1.loc, $5.Location()),
@@ -113,7 +119,7 @@ abstraction:
                     }
                 }
 
-varlist:
+varList:
                 {
                     $$ = []lambda.AST{}
                 }
@@ -186,7 +192,7 @@ tupleType:
                 }
 
 application:
-                expression '(' expressionlist ')'
+                expression '(' expressionList ')'
                 {
                     $$ = &lambda.Application{
                         Loc: extend($1.Location(), $4.loc),
@@ -195,7 +201,7 @@ application:
                     }
                 }
 
-expressionlist:
+expressionList:
                 {
                     $$ = []lambda.AST{}
                 }
@@ -210,6 +216,42 @@ expressions:
         |       expressions ',' expression
                 {
                     $$ = append($1, $3)
+                }
+
+let:            tokLet bindingList tokIn brackExpr
+                {
+                    $$ = &lambda.Let{
+                        Loc: extend($1.loc, $4.Location()),
+                        Bindings: $2,
+                        Body: $4,
+                    }
+                }
+
+bindingList:
+                {
+                    $$ = []lambda.AST{}
+                }
+        |       bindings
+        |       bindings ','
+
+bindings:
+                binding
+                {
+                    $$ = []lambda.AST{$1}
+                }
+        |       bindings ',' binding
+                {
+                    $$ = append($1, $3)
+                }
+
+binding:
+                typedecl '=' expression
+                {
+                    $$ = &lambda.NameBinding{
+                        Loc: extend($1.Location(), $3.Location()),
+                        Var: $1,
+                        Value: $3,
+                    }
                 }
 
 %%

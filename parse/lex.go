@@ -30,9 +30,9 @@ const (
 
 var keywords = map[string]token{
 	"if":   tokIf,
-	"then": tokThen,
 	"else": tokElse,
-	"end":  tokEnd,
+	"let":  tokLet,
+	"in":   tokIn,
 
 	"fn":    tokFunc,
 	"true":  tokBoolean,

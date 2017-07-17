@@ -125,3 +125,22 @@ type TyArrow struct {
 }
 
 func (t *TyArrow) isAST() {}
+
+// Let represents a `let` expression
+type Let struct {
+	Loc
+	Bindings []AST
+	Body     AST
+}
+
+func (l *Let) isAST() {}
+
+// NameBinding represents a `var [: Type] = value` in a let bindings
+// list
+type NameBinding struct {
+	Loc
+	Var   AST
+	Value AST
+}
+
+func (n *NameBinding) isAST() {}
