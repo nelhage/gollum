@@ -56,11 +56,17 @@ func (t TypeError) Error() string {
 // OccurCheck is returned if the "occurs" check fails during
 // unification
 type OccurCheck struct {
-	Node AST
+	Node  AST
+	Left  Type
+	Right Type
 }
 
 func (o OccurCheck) Error() string {
-	return fmt.Sprintf("%s: occurs check failed", o.Node.Location().String())
+	return fmt.Sprintf("%s: occurs check: can't construct infinite type %s = %s",
+		o.Node.Location().String(),
+		PrintType(o.Left),
+		PrintType(o.Right),
+	)
 }
 
 // PrintType returns a string representation of a type

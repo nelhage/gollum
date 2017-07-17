@@ -89,13 +89,13 @@ func (tcs *tcState) unify(cs []constraint) error {
 
 		if v, ok := left.(*TypeVariable); ok {
 			if occur(v, right) {
-				return &OccurCheck{c.node}
+				return &OccurCheck{c.node, left, right}
 			}
 
 			tcs.addMapping(v.Var, right)
 		} else if v, ok := right.(*TypeVariable); ok {
 			if occur(v, left) {
-				return &OccurCheck{c.node}
+				return &OccurCheck{c.node, left, right}
 			}
 			tcs.addMapping(v.Var, left)
 		} else if lf, ok := left.(*FunctionType); ok {
@@ -259,6 +259,38 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 		}
 
 		return conType, constraints, nil
+	case *Let:
+		var names []string
+		var types []Type
+		var constraints []constraint
+		for _, b := range n.Bindings {
+			nb := b.(*NameBinding)
+			tn := nb.Var.(*TypedName)
+			var ty Type
+			if tn.Type != nil {
+				var err error
+				ty, err = ParseType(tn.Type)
+				if err != nil {
+					return nil, nil, err
+				}
+			} else {
+				ty = tcs.gensym()
+			}
+			vty, err := tcs.typeCheck(nb.Value, env)
+			if err != nil {
+				return nil, nil, err
+			}
+			constraints = append(constraints, constraint{
+				nb, ty, vty,
+			})
+			names = append(names, tn.Name)
+			types = append(types, vty)
+		}
+		bty, err := tcs.typeCheck(n.Body, env.Extend(names, types))
+		if err != nil {
+			return nil, nil, err
+		}
+		return bty, constraints, nil
 
 	case *TypedName, *TyName, *TyArrow:
 		panic(fmt.Sprintf("bad toplevel ast: %#v", ast))
