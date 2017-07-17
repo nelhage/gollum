@@ -1,0 +1,17 @@
+let
+  z = fn(s,z){z},
+  s = fn(n){fn(s,z){s(n(s, z))}},
+  c2n = fn(c){c(fn(a){add(a,1)}, 0)},
+in {
+  let plus = fn(l,r) {l(s,r)}
+  in {
+    let mul = fn(l,r){
+      fn(ss, zz) {
+       l(fn(a) { r(ss, a) }, zz)
+      }
+    }
+    in {
+      c2n(mul(s(s(z)), s(s(s(s(z))))))
+    }
+  }
+}

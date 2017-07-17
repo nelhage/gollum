@@ -33,3 +33,11 @@ type TupleType struct {
 }
 
 func (t *TupleType) isType() {}
+
+// Forall is the type of a universally qualified type term
+type Forall struct {
+	Vars []int64
+	Type Type
+}
+
+func (f *Forall) isType() {}

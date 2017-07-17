@@ -99,6 +99,26 @@ func TestLex(t *testing.T) {
 	}
 }
 
+func TestLextSelfcheck(t *testing.T) {
+	cases := []string{
+		"      c2n(mul(s(s(z)), s(s(s(s(z))))))",
+	}
+	for _, tc := range cases {
+		toks := lex(tc)
+		for i, tok := range toks {
+			slice := tc[tok.loc.Begin.Offset:tok.loc.End.Offset]
+			rt := lex(slice)
+			if len(rt) != 1 ||
+				rt[0].tok != tok.tok ||
+				!reflect.DeepEqual(rt[0].val, tok.val) {
+				t.Errorf("tok %d: (%#v)/%q: reparsed as %#v",
+					i, tok, slice, rt,
+				)
+			}
+		}
+	}
+}
+
 func TestLexError(t *testing.T) {
 	r := offsetReader{r: bufio.NewReader(strings.NewReader(`"foo`))}
 	l := lexer{filename: "<test>", r: r}

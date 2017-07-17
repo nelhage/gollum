@@ -29,7 +29,7 @@ func (l Loc) Location() Loc {
 
 // String implements Stringer for Loc
 func (l Loc) String() string {
-	return fmt.Sprintf("%s:%d:%d", l.File, l.Begin.Line+1, l.Begin.Column+1)
+	return fmt.Sprintf("%s:%d:%d", l.File, l.Begin.Line+1, l.Begin.Column)
 }
 
 // Boolean represents a boolean literal
@@ -125,3 +125,22 @@ type TyArrow struct {
 }
 
 func (t *TyArrow) isAST() {}
+
+// Let represents a `let` expression
+type Let struct {
+	Loc
+	Bindings []AST
+	Body     AST
+}
+
+func (l *Let) isAST() {}
+
+// NameBinding represents a `var [: Type] = value` in a let bindings
+// list
+type NameBinding struct {
+	Loc
+	Var   AST
+	Value AST
+}
+
+func (n *NameBinding) isAST() {}

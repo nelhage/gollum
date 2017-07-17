@@ -1,6 +1,7 @@
 package lambda
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 )
@@ -56,11 +57,17 @@ func (t TypeError) Error() string {
 // OccurCheck is returned if the "occurs" check fails during
 // unification
 type OccurCheck struct {
-	Node AST
+	Node  AST
+	Left  Type
+	Right Type
 }
 
 func (o OccurCheck) Error() string {
-	return fmt.Sprintf("%s: occurs check failed", o.Node.Location().String())
+	return fmt.Sprintf("%s: occurs check: can't construct infinite type %s = %s",
+		o.Node.Location().String(),
+		PrintType(o.Left),
+		PrintType(o.Right),
+	)
 }
 
 // PrintType returns a string representation of a type
@@ -69,16 +76,18 @@ func PrintType(t Type) string {
 	case *AtomicType:
 		return n.Name
 	case *FunctionType:
+		dom := n.Dom
 		var d string
 		if dtup, ok := n.Dom.(*TupleType); ok && len(dtup.Elts) == 1 {
-			d = PrintType(dtup.Elts[0])
+			dom = dtup.Elts[0]
+		}
+
+		if _, ok := dom.(*FunctionType); ok {
+			d = fmt.Sprintf("(%s)", PrintType(dom))
 		} else {
-			d = PrintType(n.Dom)
+			d = PrintType(dom)
 		}
 		r := PrintType(n.Range)
-		if _, ok := n.Range.(*FunctionType); ok {
-			r = fmt.Sprintf("(%s)", r)
-		}
 		return fmt.Sprintf("%s -> %s", d, r)
 	case *TupleType:
 		var bits []string
@@ -87,20 +96,19 @@ func PrintType(t Type) string {
 		}
 		return fmt.Sprintf("(%s)", strings.Join(bits, ", "))
 	case *TypeVariable:
-		// ceil(log_26(2**64))
-		var buf [14]byte
-		i := len(buf)
-		v := n.Var
-		for {
-			i--
-			buf[i] = byte('A' + (v % 26))
-			v /= 26
-			if v == 0 {
-				break
+		return varname(n.Var)
+	case *Forall:
+		var b bytes.Buffer
+		b.WriteString("∀")
+		for i, v := range n.Vars {
+			b.WriteString(varname(v))
+			if i != len(n.Vars)-1 {
+				b.WriteString(",")
 			}
 		}
-
-		return string(buf[i:])
+		b.WriteString(".")
+		b.WriteString(PrintType(n.Type))
+		return b.String()
 	default:
 		panic(fmt.Sprintf("unknown type: %#v", t))
 	}
@@ -108,4 +116,21 @@ func PrintType(t Type) string {
 
 func bad(where string, ty Type) string {
 	return fmt.Sprintf("%s: unexpected type: %#v", where, ty)
+}
+
+func varname(v int64) string {
+	// ceil(log_26(2**64))
+	var buf [14]byte
+	i := len(buf)
+
+	for {
+		i--
+		buf[i] = byte('A' + (v % 26))
+		v /= 26
+		if v == 0 {
+			break
+		}
+	}
+
+	return string(buf[i:])
 }

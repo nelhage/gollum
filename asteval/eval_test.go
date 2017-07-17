@@ -1,58 +1,33 @@
 package asteval
 
 import (
-	"reflect"
+	"path"
 	"testing"
 
-	"nelhage.com/lambda"
+	"nelhage.com/lambda/testutil"
 )
 
 func TestEval(t *testing.T) {
-	cases := []struct {
-		name string
-		ast  lambda.AST
-		val  Value
-		err  error
-	}{
-		{
-			"lit",
-			&lambda.Boolean{Value: true},
-			&Boolean{true},
-			nil,
-		},
-		{
-			"if",
-			&lambda.If{
-				Condition:  &lambda.Boolean{Value: true},
-				Consequent: &lambda.String{Value: "true"},
-				Alternate: &lambda.Application{
-					Func: &lambda.Variable{Var: "die"},
-					Args: []lambda.AST{&lambda.Boolean{Value: true}},
-				},
-			},
-			&String{"true"},
-			nil,
-		},
-		{
-			"unbound",
-			&lambda.Variable{Var: "foobar"},
-			nil,
-			UnboundVariable{"foobar"},
-		},
+	good := testutil.ListDir(t, "good")
+	for _, tc := range good {
+		t.Run(path.Join("good", tc.Name), func(t *testing.T) {
+			ast := testutil.MustParse(t, tc)
+			_, err := Eval(ast, GlobalEnv)
+
+			if err != nil {
+				t.Fatalf("eval(%q): %v", tc.Name, err)
+			}
+		})
 	}
 
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			v, e := Eval(tc.ast, GlobalEnv)
-			if !reflect.DeepEqual(v, tc.val) {
-				t.Errorf("Bad eval: got %#v want %#v",
-					v, tc.val,
-				)
-			}
-			if !reflect.DeepEqual(e, tc.err) {
-				t.Errorf("Bad err: got %#v want %#v",
-					e, tc.err,
-				)
+	bad := testutil.ListDir(t, "bad")
+	for _, tc := range bad {
+		t.Run(path.Join("bad", tc.Name), func(t *testing.T) {
+			ast := testutil.MustParse(t, tc)
+			v, err := Eval(ast, GlobalEnv)
+
+			if err == nil {
+				t.Fatalf("typecheck(%q): %v", tc.Name, v)
 			}
 		})
 	}

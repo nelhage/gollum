@@ -39,15 +39,13 @@ func TypeCheck(ast AST, env *TypeEnv) (Type, error) {
 }
 
 func (tcs *tcState) mapTypes(ty Type) Type {
-	return foldType(func(t Type) Type {
-		if v, ok := t.(*TypeVariable); ok {
-			if ent, ok := tcs.soln[v.Var]; ok {
-				mapped := tcs.mapTypes(ent.ty)
-				ent.ty = mapped
-				return ent.ty
-			}
+	return mapVars(func(v *TypeVariable) Type {
+		if ent, ok := tcs.soln[v.Var]; ok {
+			mapped := tcs.mapTypes(ent.ty)
+			ent.ty = mapped
+			return ent.ty
 		}
-		return t
+		return v
 	}, ty)
 }
 
@@ -75,6 +73,45 @@ func occur(v *TypeVariable, ty Type) bool {
 	}
 }
 
+func (tcs *tcState) generalize(ty Type, e *TypeEnv) Type {
+	bound := make(map[int64]struct{})
+	for _, b := range e.BoundVars() {
+		bound[b] = struct{}{}
+	}
+	free := make(map[int64]struct{})
+	mapVars(func(tv *TypeVariable) Type {
+		if _, ok := bound[tv.Var]; !ok {
+			free[tv.Var] = struct{}{}
+		}
+		return tv
+	}, ty)
+	var quantify []int64
+	for f := range free {
+		quantify = append(quantify, f)
+	}
+	return &Forall{
+		Vars: quantify,
+		Type: ty,
+	}
+}
+
+func (tcs *tcState) instantiate(ty Type) Type {
+	forall, ok := ty.(*Forall)
+	if !ok {
+		return ty
+	}
+	rename := make(map[int64]Type, len(forall.Vars))
+	for _, v := range forall.Vars {
+		rename[v] = tcs.gensym()
+	}
+	return mapVars(func(tv *TypeVariable) Type {
+		if newv, ok := rename[tv.Var]; ok {
+			return newv
+		}
+		return tv
+	}, forall.Type)
+}
+
 func (tcs *tcState) unify(cs []constraint) error {
 	for len(cs) > 0 {
 		c := cs[0]
@@ -89,13 +126,13 @@ func (tcs *tcState) unify(cs []constraint) error {
 
 		if v, ok := left.(*TypeVariable); ok {
 			if occur(v, right) {
-				return &OccurCheck{c.node}
+				return &OccurCheck{c.node, left, right}
 			}
 
 			tcs.addMapping(v.Var, right)
 		} else if v, ok := right.(*TypeVariable); ok {
 			if occur(v, left) {
-				return &OccurCheck{c.node}
+				return &OccurCheck{c.node, left, right}
 			}
 			tcs.addMapping(v.Var, left)
 		} else if lf, ok := left.(*FunctionType); ok {
@@ -147,13 +184,6 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 	if err != nil {
 		return nil, err
 	}
-	if debug {
-		log.Printf("type: %s", PrintType(ty))
-		log.Printf("constraints: ")
-		for _, c := range cs {
-			log.Printf("  %s = %s", PrintType(c.left), PrintType(c.right))
-		}
-	}
 	for i := range cs {
 		cs[i].left = tcs.mapTypes(cs[i].left)
 		cs[i].right = tcs.mapTypes(cs[i].right)
@@ -182,15 +212,18 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 		if t == nil {
 			return nil, nil, UnboundVariable{ast, n.Var}
 		}
-		return t, nil, nil
+		return tcs.instantiate(t), nil, nil
 	case *Abstraction:
 		var names []string
 		var types []Type
+		var bound []int64
+
 		for _, v := range n.Vars {
 			var argType Type
 			tv := v.(*TypedName)
 			if tv.Type == nil {
 				argType = tcs.gensym()
+				bound = append(bound, argType.(*TypeVariable).Var)
 			} else {
 				var e error
 				argType, e = ParseType(tv.Type)
@@ -201,7 +234,7 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 			names = append(names, tv.Name)
 			types = append(types, argType)
 		}
-		env := env.Extend(names, types)
+		env := env.Extend(names, types, bound)
 
 		rtype, cs, e := tcs.constraints(n.Body, env)
 
@@ -259,6 +292,40 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 		}
 
 		return conType, constraints, nil
+	case *Let:
+		var names []string
+		var types []Type
+		var constraints []constraint
+		for _, b := range n.Bindings {
+			nb := b.(*NameBinding)
+			tn := nb.Var.(*TypedName)
+			var ty Type
+			vty, err := tcs.typeCheck(nb.Value, env)
+			if err != nil {
+				return nil, nil, err
+			}
+			if tn.Type != nil {
+				var err error
+				ty, err = ParseType(tn.Type)
+				if err != nil {
+					return nil, nil, err
+				}
+				constraints = append(constraints, constraint{
+					nb, ty, vty,
+				})
+			}
+			names = append(names, tn.Name)
+			gen := tcs.generalize(vty, env)
+			if debug {
+				log.Printf("let %s : %s", tn.Name, PrintType(gen))
+			}
+			types = append(types, gen)
+		}
+		bty, err := tcs.typeCheck(n.Body, env.Extend(names, types, nil))
+		if err != nil {
+			return nil, nil, err
+		}
+		return bty, constraints, nil
 
 	case *TypedName, *TyName, *TyArrow:
 		panic(fmt.Sprintf("bad toplevel ast: %#v", ast))
