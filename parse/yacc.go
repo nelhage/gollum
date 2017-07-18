@@ -55,7 +55,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line yacc.y:259
+//line yacc.y:266
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -66,48 +66,49 @@ var yyExca = [...]int{
 
 const yyPrivate = 57344
 
-const yyLast = 70
+const yyLast = 73
 
 var yyAct = [...]int{
 
 	50, 8, 27, 26, 2, 16, 14, 40, 18, 41,
 	11, 12, 13, 15, 19, 20, 10, 37, 17, 21,
-	17, 45, 23, 33, 31, 36, 19, 63, 17, 62,
-	57, 19, 32, 61, 51, 42, 19, 52, 22, 46,
-	47, 43, 39, 48, 57, 49, 54, 55, 53, 56,
-	28, 38, 44, 58, 1, 25, 24, 59, 60, 35,
-	34, 30, 29, 9, 64, 7, 6, 5, 4, 3,
+	17, 45, 23, 33, 31, 36, 51, 19, 32, 52,
+	64, 19, 63, 17, 62, 57, 51, 42, 61, 52,
+	47, 19, 22, 48, 46, 49, 54, 55, 53, 56,
+	43, 39, 57, 58, 28, 38, 44, 1, 60, 25,
+	24, 59, 35, 34, 65, 30, 29, 9, 7, 6,
+	5, 4, 3,
 }
 var yyPact = [...]int{
 
-	1, -1000, 21, -1000, -1000, -1000, -1000, -1000, -1000, -1000,
-	1, -1000, -1000, -1000, 1, -1000, 23, 1, 38, 1,
-	16, 11, 38, -1, 43, 28, -1000, -13, -10, 19,
-	27, 21, -1000, 46, 5, 25, -1000, -1000, 3, 38,
-	1, 22, -1000, 1, 3, 3, 38, -1000, -1000, 21,
-	31, -1000, 22, 21, -1000, -1000, -1000, 22, 17, 13,
-	31, -1000, -1000, 22, 31,
+	1, -1000, 26, -1000, -1000, -1000, -1000, -1000, -1000, -1000,
+	1, -1000, -1000, -1000, 1, -1000, 27, 1, 42, 1,
+	12, 16, 42, -1, 47, 37, -1000, -13, -10, 21,
+	36, 26, -1000, 50, 5, 30, -1000, -1000, 3, 42,
+	1, 24, -1000, 1, 3, 3, 42, -1000, -1000, 26,
+	39, -1000, 24, 26, -1000, -1000, -1000, 24, 22, 18,
+	39, -1000, -1000, 14, -1000, 39,
 }
 var yyPgo = [...]int{
 
-	0, 4, 1, 69, 68, 67, 66, 65, 63, 62,
-	61, 60, 59, 2, 0, 57, 56, 55, 3, 54,
+	0, 4, 1, 72, 71, 70, 69, 68, 67, 66,
+	65, 63, 62, 2, 0, 61, 60, 59, 3, 57,
 }
 var yyR1 = [...]int{
 
 	0, 19, 1, 1, 1, 1, 1, 1, 1, 1,
 	2, 3, 3, 3, 4, 5, 6, 11, 11, 11,
-	12, 12, 13, 13, 14, 14, 14, 14, 15, 15,
-	7, 9, 9, 9, 10, 10, 8, 16, 16, 16,
-	17, 17, 18,
+	12, 12, 13, 13, 14, 14, 14, 14, 14, 15,
+	15, 7, 9, 9, 9, 10, 10, 8, 16, 16,
+	16, 17, 17, 18,
 }
 var yyR2 = [...]int{
 
 	0, 1, 1, 1, 1, 1, 1, 1, 1, 3,
 	3, 1, 1, 1, 5, 1, 5, 0, 1, 2,
-	1, 3, 1, 3, 1, 3, 3, 3, 1, 3,
-	4, 0, 1, 2, 1, 3, 4, 0, 1, 2,
-	1, 3, 3,
+	1, 3, 1, 3, 1, 3, 3, 3, 4, 1,
+	3, 4, 0, 1, 2, 1, 3, 4, 0, 1,
+	2, 1, 3, 3,
 }
 var yyChk = [...]int{
 
@@ -117,17 +118,17 @@ var yyChk = [...]int{
 	-10, -1, 16, -2, -11, -12, -13, 18, 8, 14,
 	20, 19, 16, 14, 6, 16, 14, -2, -18, -1,
 	-14, 12, 15, -1, -2, -2, -13, 13, -14, -15,
-	-14, 16, 16, 14, -14,
+	-14, 16, 16, 14, 16, -14,
 }
 var yyDef = [...]int{
 
 	0, -2, 1, 2, 3, 4, 5, 6, 7, 8,
-	0, 11, 12, 13, 0, 15, 0, 0, 37, 31,
-	0, 0, 17, 0, 0, 38, 40, 0, 22, 0,
-	32, 34, 9, 0, 0, 18, 20, 10, 0, 39,
-	0, 0, 30, 33, 0, 0, 19, 36, 41, 42,
-	23, 24, 0, 35, 14, 16, 21, 0, 28, 0,
-	25, 26, 27, 0, 29,
+	0, 11, 12, 13, 0, 15, 0, 0, 38, 32,
+	0, 0, 17, 0, 0, 39, 41, 0, 22, 0,
+	33, 35, 9, 0, 0, 18, 20, 10, 0, 40,
+	0, 0, 31, 34, 0, 0, 19, 37, 42, 43,
+	23, 24, 0, 36, 14, 16, 21, 0, 29, 0,
+	25, 26, 27, 0, 28, 30,
 }
 var yyTok1 = [...]int{
 
@@ -639,20 +640,29 @@ yydefault:
 			}
 		}
 	case 28:
+		yyDollar = yyS[yypt-4 : yypt+1]
+		//line yacc.y:186
+		{
+			yyVAL.ast = &lambda.TyTuple{
+				Loc:  extend(yyDollar[1].tok.loc, yyDollar[3].tok.loc),
+				Elts: yyDollar[2].asts,
+			}
+		}
+	case 29:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:188
+		//line yacc.y:195
 		{
 			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
 		}
-	case 29:
+	case 30:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:192
+		//line yacc.y:199
 		{
 			yyVAL.asts = append(yyDollar[1].asts, yyDollar[3].ast)
 		}
-	case 30:
+	case 31:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line yacc.y:198
+		//line yacc.y:205
 		{
 			yyVAL.ast = &lambda.Application{
 				Loc:  extend(yyDollar[1].ast.Location(), yyDollar[4].tok.loc),
@@ -660,27 +670,27 @@ yydefault:
 				Args: yyDollar[3].asts,
 			}
 		}
-	case 31:
+	case 32:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line yacc.y:207
+		//line yacc.y:214
 		{
 			yyVAL.asts = []lambda.AST{}
 		}
-	case 34:
+	case 35:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:215
+		//line yacc.y:222
 		{
 			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
 		}
-	case 35:
+	case 36:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:219
+		//line yacc.y:226
 		{
 			yyVAL.asts = append(yyDollar[1].asts, yyDollar[3].ast)
 		}
-	case 36:
+	case 37:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line yacc.y:224
+		//line yacc.y:231
 		{
 			yyVAL.ast = &lambda.Let{
 				Loc:      extend(yyDollar[1].tok.loc, yyDollar[4].ast.Location()),
@@ -688,27 +698,27 @@ yydefault:
 				Body:     yyDollar[4].ast,
 			}
 		}
-	case 37:
+	case 38:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line yacc.y:233
+		//line yacc.y:240
 		{
 			yyVAL.asts = []lambda.AST{}
 		}
-	case 40:
+	case 41:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:241
+		//line yacc.y:248
 		{
 			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
 		}
-	case 41:
+	case 42:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:245
+		//line yacc.y:252
 		{
 			yyVAL.asts = append(yyDollar[1].asts, yyDollar[3].ast)
 		}
-	case 42:
+	case 43:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:251
+		//line yacc.y:258
 		{
 			yyVAL.ast = &lambda.NameBinding{
 				Loc:   extend(yyDollar[1].ast.Location(), yyDollar[3].ast.Location()),

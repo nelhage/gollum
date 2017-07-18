@@ -182,6 +182,13 @@ type:
                         Elts: $2,
                     }
                 }
+        |       '(' tupleType ',' ')'
+                {
+                    $$ = &lambda.TyTuple{
+                        Loc: extend($1.loc, $3.loc),
+                        Elts: $2,
+                    }
+                }
 
 tupleType:
                 type %prec ','
