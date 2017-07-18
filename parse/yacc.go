@@ -55,7 +55,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line yacc.y:257
+//line yacc.y:259
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -64,11 +64,7 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 43
 const yyPrivate = 57344
-
-var yyTokenNames []string
-var yyStates []string
 
 const yyLast = 70
 
@@ -497,25 +493,25 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:46
+		//line yacc.y:48
 		{
 			yylex.(*lexer).result = yyDollar[1].ast
 		}
 	case 9:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:59
+		//line yacc.y:61
 		{
 			yyVAL.ast = yyDollar[2].ast
 		}
 	case 10:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:65
+		//line yacc.y:67
 		{
 			yyVAL.ast = yyDollar[2].ast
 		}
 	case 11:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:72
+		//line yacc.y:74
 		{
 			yyVAL.ast = &lambda.Boolean{
 				Loc:   yyDollar[1].tok.loc,
@@ -524,7 +520,7 @@ yydefault:
 		}
 	case 12:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:79
+		//line yacc.y:81
 		{
 			yyVAL.ast = &lambda.Integer{
 				Loc:   yyDollar[1].tok.loc,
@@ -533,7 +529,7 @@ yydefault:
 		}
 	case 13:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:86
+		//line yacc.y:88
 		{
 			yyVAL.ast = &lambda.String{
 				Loc:   yyDollar[1].tok.loc,
@@ -542,7 +538,7 @@ yydefault:
 		}
 	case 14:
 		yyDollar = yyS[yypt-5 : yypt+1]
-		//line yacc.y:95
+		//line yacc.y:97
 		{
 			yyVAL.ast = &lambda.If{
 				Loc:        extend(yyDollar[1].tok.loc, yyDollar[5].ast.Location()),
@@ -553,7 +549,7 @@ yydefault:
 		}
 	case 15:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:105
+		//line yacc.y:107
 		{
 			yyVAL.ast = &lambda.Variable{
 				Loc: yyDollar[1].tok.loc,
@@ -562,7 +558,7 @@ yydefault:
 		}
 	case 16:
 		yyDollar = yyS[yypt-5 : yypt+1]
-		//line yacc.y:114
+		//line yacc.y:116
 		{
 			yyVAL.ast = &lambda.Abstraction{
 				Loc:  extend(yyDollar[1].tok.loc, yyDollar[5].ast.Location()),
@@ -572,25 +568,25 @@ yydefault:
 		}
 	case 17:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line yacc.y:123
+		//line yacc.y:125
 		{
 			yyVAL.asts = []lambda.AST{}
 		}
 	case 20:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:130
+		//line yacc.y:132
 		{
 			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
 		}
 	case 21:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:134
+		//line yacc.y:136
 		{
 			yyVAL.asts = append(yyDollar[1].asts, yyDollar[3].ast)
 		}
 	case 22:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:140
+		//line yacc.y:142
 		{
 			yyVAL.ast = &lambda.TypedName{
 				Loc:  yyDollar[1].tok.loc,
@@ -600,7 +596,7 @@ yydefault:
 		}
 	case 23:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:148
+		//line yacc.y:150
 		{
 			yyVAL.ast = &lambda.TypedName{
 				Loc:  yyDollar[1].tok.loc,
@@ -610,7 +606,7 @@ yydefault:
 		}
 	case 24:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:158
+		//line yacc.y:160
 		{
 			yyVAL.ast = &lambda.TyName{
 				Loc:  yyDollar[1].tok.loc,
@@ -619,7 +615,7 @@ yydefault:
 		}
 	case 25:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:165
+		//line yacc.y:167
 		{
 			yyVAL.ast = &lambda.TyArrow{
 				Loc:   extend(yyDollar[1].ast.Location(), yyDollar[3].ast.Location()),
@@ -629,13 +625,13 @@ yydefault:
 		}
 	case 26:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:173
+		//line yacc.y:175
 		{
 			yyVAL.ast = yyDollar[2].ast
 		}
 	case 27:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:177
+		//line yacc.y:179
 		{
 			yyVAL.ast = &lambda.TyTuple{
 				Loc:  extend(yyDollar[1].tok.loc, yyDollar[3].tok.loc),
@@ -644,19 +640,19 @@ yydefault:
 		}
 	case 28:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:186
+		//line yacc.y:188
 		{
 			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
 		}
 	case 29:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:190
+		//line yacc.y:192
 		{
 			yyVAL.asts = append(yyDollar[1].asts, yyDollar[3].ast)
 		}
 	case 30:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line yacc.y:196
+		//line yacc.y:198
 		{
 			yyVAL.ast = &lambda.Application{
 				Loc:  extend(yyDollar[1].ast.Location(), yyDollar[4].tok.loc),
@@ -666,25 +662,25 @@ yydefault:
 		}
 	case 31:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line yacc.y:205
+		//line yacc.y:207
 		{
 			yyVAL.asts = []lambda.AST{}
 		}
 	case 34:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:213
+		//line yacc.y:215
 		{
 			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
 		}
 	case 35:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:217
+		//line yacc.y:219
 		{
 			yyVAL.asts = append(yyDollar[1].asts, yyDollar[3].ast)
 		}
 	case 36:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line yacc.y:222
+		//line yacc.y:224
 		{
 			yyVAL.ast = &lambda.Let{
 				Loc:      extend(yyDollar[1].tok.loc, yyDollar[4].ast.Location()),
@@ -694,25 +690,25 @@ yydefault:
 		}
 	case 37:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line yacc.y:231
+		//line yacc.y:233
 		{
 			yyVAL.asts = []lambda.AST{}
 		}
 	case 40:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line yacc.y:239
+		//line yacc.y:241
 		{
 			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
 		}
 	case 41:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:243
+		//line yacc.y:245
 		{
 			yyVAL.asts = append(yyDollar[1].asts, yyDollar[3].ast)
 		}
 	case 42:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line yacc.y:249
+		//line yacc.y:251
 		{
 			yyVAL.ast = &lambda.NameBinding{
 				Loc:   extend(yyDollar[1].ast.Location(), yyDollar[3].ast.Location()),

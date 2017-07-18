@@ -38,6 +38,8 @@ import (
 %token  <tok>           ',' '(' ')' '{' '}' ':'
 
 %right tokArrow
+%nonassoc ','
+%nonassoc ')'
 
 %%
 
@@ -182,7 +184,7 @@ type:
                 }
 
 tupleType:
-                type
+                type %prec ','
                 {
                     $$ = []lambda.AST{$1}
                 }
