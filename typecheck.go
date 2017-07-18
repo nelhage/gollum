@@ -295,7 +295,6 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 	case *Let:
 		var names []string
 		var types []Type
-		var constraints []constraint
 		for _, b := range n.Bindings {
 			nb := b.(*NameBinding)
 			tn := nb.Var.(*TypedName)
@@ -310,9 +309,11 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 				if err != nil {
 					return nil, nil, err
 				}
-				constraints = append(constraints, constraint{
-					nb, ty, vty,
-				})
+				if err := tcs.unify([]constraint{
+					{nb, ty, vty},
+				}); err != nil {
+					return nil, nil, err
+				}
 			}
 			names = append(names, tn.Name)
 			gen := tcs.generalize(vty, env)
@@ -325,7 +326,7 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 		if err != nil {
 			return nil, nil, err
 		}
-		return bty, constraints, nil
+		return bty, nil, nil
 
 	case *TypedName, *TyName, *TyArrow:
 		panic(fmt.Sprintf("bad toplevel ast: %#v", ast))
