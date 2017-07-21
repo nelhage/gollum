@@ -35,7 +35,11 @@ func (tcs *tcState) gensym() Type {
 // structure
 func TypeCheck(ast AST, env *TypeEnv) (Type, error) {
 	tcs := tcState{soln: make(map[int64]*typeSub)}
-	return tcs.typeCheck(ast, env)
+	ty, err := tcs.typeCheck(ast, env)
+	if ty != nil {
+		ty = tcs.mapTypes(ty)
+	}
+	return ty, err
 }
 
 func (tcs *tcState) mapTypes(ty Type) Type {
@@ -179,41 +183,25 @@ func (tcs *tcState) unify(cs []constraint) error {
 	return nil
 }
 
-func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
-	ty, cs, err := tcs.constraints(ast, env)
-	if err != nil {
-		return nil, err
-	}
-	err = tcs.unify(cs)
-	if err != nil {
-		return nil, err
-	}
-	mapped := tcs.mapTypes(ty)
-	if debug {
-		log.Printf("mapped: %s", PrintType(mapped))
-	}
-	return mapped, nil
-}
-
 func syntacticValue(ast AST) bool {
 	_, ok := ast.(*Abstraction)
 	return ok
 }
 
-func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, error) {
+func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 	switch n := ast.(type) {
 	case *Boolean:
-		return boolType, nil, nil
+		return boolType, nil
 	case *String:
-		return strType, nil, nil
+		return strType, nil
 	case *Integer:
-		return intType, nil, nil
+		return intType, nil
 	case *Variable:
 		t := env.Lookup(n.Var)
 		if t == nil {
-			return nil, nil, UnboundVariable{ast, n.Var}
+			return nil, UnboundVariable{ast, n.Var}
 		}
-		return tcs.instantiate(t), nil, nil
+		return tcs.instantiate(t), nil
 	case *Abstraction:
 		var names []string
 		var types []Type
@@ -229,7 +217,7 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 				var e error
 				argType, e = ParseType(tv.Type)
 				if e != nil {
-					return nil, nil, e
+					return nil, e
 				}
 			}
 			names = append(names, tv.Name)
@@ -237,62 +225,66 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 		}
 		env := env.Extend(names, types, bound)
 
-		rtype, cs, e := tcs.constraints(n.Body, env)
+		rtype, e := tcs.typeCheck(n.Body, env)
 
 		if e != nil {
-			return nil, nil, e
+			return nil, e
 		}
 		return &FunctionType{
 			Dom: &TupleType{
 				Elts: types,
 			},
 			Range: rtype,
-		}, cs, nil
+		}, nil
 	case *Application:
 		ftype, err := tcs.typeCheck(n.Func, env)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		var args []Type
 		for _, a := range n.Args {
 			argType, err := tcs.typeCheck(a, env)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 			args = append(args, argType)
 		}
 		argType := &TupleType{Elts: args}
 		rng := tcs.gensym()
-		constraints := []constraint{{
+		if err := tcs.unify([]constraint{{
 			node: ast,
 			left: ftype,
 			right: &FunctionType{
 				Dom:   argType,
 				Range: rng,
 			},
-		}}
-		return rng, constraints, nil
+		}}); err != nil {
+			return nil, err
+		}
+		return rng, nil
 
 	case *If:
 		cdType, err := tcs.typeCheck(n.Condition, env)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		conType, err := tcs.typeCheck(n.Consequent, env)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		altType, err := tcs.typeCheck(n.Alternate, env)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-		constraints := []constraint{
+		if err := tcs.unify([]constraint{
 			{ast, boolType, cdType},
 			{ast, conType, altType},
+		}); err != nil {
+			return nil, err
 		}
 
-		return conType, constraints, nil
+		return conType, nil
 	case *Let:
 		var names []string
 		var types []Type
@@ -316,23 +308,23 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 			var ty Type
 			vty, err := tcs.typeCheck(nb.Value, env)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 			if err := tcs.unify([]constraint{
 				{nb, types[i], vty},
 			}); err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 			if tn.Type != nil {
 				var err error
 				ty, err = ParseType(tn.Type)
 				if err != nil {
-					return nil, nil, err
+					return nil, err
 				}
 				if err := tcs.unify([]constraint{
 					{nb, ty, vty},
 				}); err != nil {
-					return nil, nil, err
+					return nil, err
 				}
 			}
 			names = append(names, tn.Name)
@@ -349,9 +341,9 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 		}
 		bty, err := tcs.typeCheck(n.Body, env)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-		return bty, nil, nil
+		return bty, nil
 
 	case *TypedName, *TyName, *TyArrow:
 		panic(fmt.Sprintf("bad toplevel ast: %#v", ast))
