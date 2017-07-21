@@ -1,6 +1,6 @@
 package asteval
 
-import "nelhage.com/lambda"
+import lambda "github.com/nelhage/gollum"
 
 // Value is a runtime value
 type Value interface {

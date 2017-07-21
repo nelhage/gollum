@@ -1,4 +1,4 @@
-package lambda
+package gollum
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package lambda
+package gollum
 
 // Type is the type of a type in the language
 type Type interface {

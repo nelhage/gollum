@@ -4,11 +4,10 @@ package parse
 
 import (
 	"errors"
+	lambda "github.com/nelhage/gollum"
 	"io"
 	"strconv"
 	"unicode"
-
-	"nelhage.com/lambda"
 )
 
 type lexer struct {

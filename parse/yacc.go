@@ -5,7 +5,7 @@ import __yyfmt__ "fmt"
 
 //line yacc.y:3
 import (
-	"nelhage.com/lambda"
+	lambda "github.com/nelhage/gollum"
 )
 
 var keywords = map[string]token{

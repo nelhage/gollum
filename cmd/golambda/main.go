@@ -8,10 +8,9 @@ import (
 	"os"
 
 	"github.com/kr/pretty"
-
-	"nelhage.com/lambda"
-	"nelhage.com/lambda/asteval"
-	"nelhage.com/lambda/parse"
+	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum/asteval"
+	"github.com/nelhage/gollum/parse"
 )
 
 func main() {

@@ -2,8 +2,7 @@ package asteval
 
 import (
 	"fmt"
-
-	"nelhage.com/lambda"
+	lambda "github.com/nelhage/gollum"
 )
 
 // Eval evaluate an AST node within the specified Environment

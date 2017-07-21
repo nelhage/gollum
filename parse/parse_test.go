@@ -6,8 +6,8 @@ import (
 	"log"
 	"testing"
 
-	"nelhage.com/lambda/parse"
-	"nelhage.com/lambda/testutil"
+	"github.com/nelhage/gollum/parse"
+	"github.com/nelhage/gollum/testutil"
 
 	"github.com/kr/pretty"
 )

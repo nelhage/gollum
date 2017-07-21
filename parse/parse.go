@@ -3,9 +3,8 @@ package parse
 import (
 	"bufio"
 	"fmt"
+	lambda "github.com/nelhage/gollum"
 	"io"
-
-	"nelhage.com/lambda"
 )
 
 // Parse parses an AST out of a stream. Returned locations will be

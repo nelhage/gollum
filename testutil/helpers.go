@@ -2,14 +2,13 @@ package testutil
 
 import (
 	"bytes"
+	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum/parse"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
 	"testing"
-
-	"nelhage.com/lambda"
-	"nelhage.com/lambda/parse"
 )
 
 // TestFile is a test case loaded from a testdata directory

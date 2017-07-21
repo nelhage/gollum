@@ -2,11 +2,10 @@ package parse
 
 import (
 	"bufio"
+	lambda "github.com/nelhage/gollum"
 	"reflect"
 	"strings"
 	"testing"
-
-	"nelhage.com/lambda"
 )
 
 type fullTok struct {

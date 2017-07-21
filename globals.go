@@ -1,4 +1,4 @@
-package lambda
+package gollum
 
 // GlobalEnv contains the default global environment
 var GlobalEnv *TypeEnv

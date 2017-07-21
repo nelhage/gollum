@@ -1,12 +1,12 @@
-package lambda_test
+package gollum_test
 
 import (
 	"io/ioutil"
 	"regexp"
 	"testing"
 
-	"nelhage.com/lambda"
-	"nelhage.com/lambda/testutil"
+	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum/testutil"
 )
 
 var (

@@ -4,7 +4,7 @@ import (
 	"path"
 	"testing"
 
-	"nelhage.com/lambda/testutil"
+	"github.com/nelhage/gollum/testutil"
 )
 
 func TestEval(t *testing.T) {

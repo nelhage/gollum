@@ -1,4 +1,4 @@
-package lambda
+package gollum
 
 func mapVars(fn func(*TypeVariable) Type, ty Type) Type {
 	switch n := ty.(type) {

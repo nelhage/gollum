@@ -1,9 +1,8 @@
 package parse
 
 import (
+	lambda "github.com/nelhage/gollum"
 	"io"
-
-	"nelhage.com/lambda"
 )
 
 type offsetReader struct {
