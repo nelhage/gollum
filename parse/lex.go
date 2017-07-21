@@ -28,17 +28,6 @@ const (
 	eof = 0
 )
 
-var keywords = map[string]token{
-	"if":   tokIf,
-	"else": tokElse,
-	"let":  tokLet,
-	"in":   tokIn,
-
-	"fn":    tokFunc,
-	"true":  tokBoolean,
-	"false": tokBoolean,
-}
-
 func (l *lexer) rune() rune {
 	if l.ioErr != nil {
 		return 0

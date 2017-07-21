@@ -296,12 +296,31 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 	case *Let:
 		var names []string
 		var types []Type
+		var vars []int64
 		for _, b := range n.Bindings {
+			nb := b.(*NameBinding)
+			tn := nb.Var.(*TypedName)
+			ty := tcs.gensym()
+			vars = append(vars, ty.(*TypeVariable).Var)
+			names = append(names, tn.Name)
+			types = append(types, ty)
+		}
+
+		if n.Recursive {
+			env = env.Extend(names, types, vars)
+		}
+
+		for i, b := range n.Bindings {
 			nb := b.(*NameBinding)
 			tn := nb.Var.(*TypedName)
 			var ty Type
 			vty, err := tcs.typeCheck(nb.Value, env)
 			if err != nil {
+				return nil, nil, err
+			}
+			if err := tcs.unify([]constraint{
+				{nb, types[i], vty},
+			}); err != nil {
 				return nil, nil, err
 			}
 			if tn.Type != nil {
@@ -325,7 +344,10 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 			}
 			types = append(types, vty)
 		}
-		bty, err := tcs.typeCheck(n.Body, env.Extend(names, types, nil))
+		if !n.Recursive {
+			env = env.Extend(names, types, vars)
+		}
+		bty, err := tcs.typeCheck(n.Body, env)
 		if err != nil {
 			return nil, nil, err
 		}

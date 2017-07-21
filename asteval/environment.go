@@ -1,5 +1,7 @@
 package asteval
 
+import "fmt"
+
 // Environment is the type of a runtime environment
 type Environment struct {
 	Frame  map[string]Value
@@ -31,4 +33,14 @@ func (e *Environment) Extend(names []string, vals []Value) *Environment {
 		e.Frame[n] = vals[i]
 	}
 	return e
+}
+
+// Sets a number of name, value pairs in the local frame
+func (e *Environment) SetLocal(names []string, vals []Value) {
+	for i, n := range names {
+		if _, ok := e.Frame[n]; !ok {
+			panic(fmt.Sprintf("SetLocal: %s", n))
+		}
+		e.Frame[n] = vals[i]
+	}
 }

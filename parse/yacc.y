@@ -6,6 +6,18 @@ import (
    "nelhage.com/lambda"
 )
 
+var keywords = map[string]token{
+	"if":   tokIf,
+	"else": tokElse,
+	"let":  tokLet,
+	"rec": tokRec,
+	"in":   tokIn,
+
+	"fn":    tokFunc,
+	"true":  tokBoolean,
+	"false": tokBoolean,
+}
+
 %}
 
 %union {
@@ -31,7 +43,7 @@ import (
 %type   <asts>          bindings
 %type   <ast>           binding
 
-%token  <tok>           tokFunc tokIf tokElse tokLet tokIn
+%token  <tok>           tokFunc tokIf tokElse tokLet tokRec tokIn
 %token  <tok>           tokBoolean tokNumber tokStr
 %token  <tok>           tokIdent
 %token  <tok>           tokArrow
@@ -233,6 +245,15 @@ let:            tokLet bindingList tokIn brackExpr
                         Loc: extend($1.loc, $4.Location()),
                         Bindings: $2,
                         Body: $4,
+                    }
+                }
+        |       tokLet tokRec bindingList tokIn brackExpr
+                {
+                    $$ = &lambda.Let{
+                        Loc: extend($1.loc, $5.Location()),
+                        Bindings: $3,
+                        Body: $5,
+                        Recursive: true,
                     }
                 }
 

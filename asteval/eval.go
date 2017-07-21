@@ -67,15 +67,27 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 		var vals []Value
 		for _, v := range n.Bindings {
 			nb := v.(*lambda.NameBinding)
+			name := nb.Var.(*lambda.TypedName).Name
+			names = append(names, name)
+			vals = append(vals, &Integer{})
+		}
+		if n.Recursive {
+			e = e.Extend(names, vals)
+		}
+		for i, v := range n.Bindings {
+			nb := v.(*lambda.NameBinding)
 			val, err := Eval(nb.Value, e)
 			if err != nil {
 				return nil, err
 			}
-			vals = append(vals, val)
-			name := nb.Var.(*lambda.TypedName).Name
-			names = append(names, name)
+			vals[i] = val
 		}
-		return Eval(n.Body, e.Extend(names, vals))
+		if n.Recursive {
+			e.SetLocal(names, vals)
+		} else {
+			e = e.Extend(names, vals)
+		}
+		return Eval(n.Body, e)
 
 	default:
 		panic(fmt.Sprintf("unknown ast: %#v", a))

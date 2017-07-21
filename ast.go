@@ -129,8 +129,9 @@ func (t *TyArrow) isAST() {}
 // Let represents a `let` expression
 type Let struct {
 	Loc
-	Bindings []AST
-	Body     AST
+	Bindings  []AST
+	Body      AST
+	Recursive bool
 }
 
 func (l *Let) isAST() {}
