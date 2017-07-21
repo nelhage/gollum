@@ -3,7 +3,7 @@
 package parse
 
 import (
-   lambda "github.com/nelhage/gollum"
+   "github.com/nelhage/gollum"
 )
 
 var keywords = map[string]token{
@@ -21,8 +21,8 @@ var keywords = map[string]token{
 %}
 
 %union {
-    ast lambda.AST
-    asts []lambda.AST
+    ast gollum.AST
+    asts []gollum.AST
     tok *tokenStruct
 }
 
@@ -84,21 +84,21 @@ brackExpr:
 literal:
                 tokBoolean
                 {
-                    $$ = &lambda.Boolean{
+                    $$ = &gollum.Boolean{
                         Loc: $1.loc,
                         Value: $1.val.(string) == "true",
                     }
                 }
         |       tokNumber
                 {
-                    $$ = &lambda.Integer{
+                    $$ = &gollum.Integer{
                         Loc: $1.loc,
                         Value: $1.val.(int64),
                     }
                 }
         |       tokStr
                 {
-                    $$ = &lambda.String{
+                    $$ = &gollum.String{
                         Loc: $1.loc,
                         Value: $1.val.(string),
                     }
@@ -107,7 +107,7 @@ literal:
 condition:
                 tokIf expression brackExpr tokElse brackExpr
                 {
-                    $$ = &lambda.If{
+                    $$ = &gollum.If{
                         Loc: extend($1.loc, $5.Location()),
                         Condition: $2,
                         Consequent: $3,
@@ -117,7 +117,7 @@ condition:
 
 variable:       tokIdent
                 {
-                    $$ = &lambda.Variable{
+                    $$ = &gollum.Variable{
                         Loc: $1.loc,
                         Var: $1.val.(string),
                     }
@@ -126,7 +126,7 @@ variable:       tokIdent
 abstraction:
                 tokFunc '(' varList ')' brackExpr
                 {
-                    $$ = &lambda.Abstraction {
+                    $$ = &gollum.Abstraction {
                         Loc: extend($1.loc, $5.Location()),
                         Vars: $3,
                         Body: $5,
@@ -135,14 +135,14 @@ abstraction:
 
 varList:
                 {
-                    $$ = []lambda.AST{}
+                    $$ = []gollum.AST{}
                 }
         |       vars
         |       vars ','
 
 vars:           typedecl
                 {
-                    $$ = []lambda.AST{$1}
+                    $$ = []gollum.AST{$1}
                 }
         |       vars ',' typedecl
                 {
@@ -152,7 +152,7 @@ vars:           typedecl
 typedecl:
                 tokIdent
                 {
-                    $$ = &lambda.TypedName{
+                    $$ = &gollum.TypedName{
                         Loc: $1.loc,
                         Name: $1.val.(string),
                         Type: nil,
@@ -160,7 +160,7 @@ typedecl:
                 }
         |       tokIdent ':' type
                 {
-                    $$ = &lambda.TypedName{
+                    $$ = &gollum.TypedName{
                         Loc: $1.loc,
                         Name: $1.val.(string),
                         Type: $3,
@@ -170,14 +170,14 @@ typedecl:
 type:
                 tokIdent
                 {
-                    $$ = &lambda.TyName{
+                    $$ = &gollum.TyName{
                         Loc: $1.loc,
                         Type: $1.val.(string),
                     }
                 }
         |       type tokArrow type
                 {
-                    $$ = &lambda.TyArrow{
+                    $$ = &gollum.TyArrow{
                         Loc: extend($1.Location(), $3.Location()),
                         Dom: $1,
                         Range: $3,
@@ -189,14 +189,14 @@ type:
                 }
         |       '(' tupleType ')'
                 {
-                    $$ = &lambda.TyTuple{
+                    $$ = &gollum.TyTuple{
                         Loc: extend($1.loc, $3.loc),
                         Elts: $2,
                     }
                 }
         |       '(' tupleType ',' ')'
                 {
-                    $$ = &lambda.TyTuple{
+                    $$ = &gollum.TyTuple{
                         Loc: extend($1.loc, $3.loc),
                         Elts: $2,
                     }
@@ -205,7 +205,7 @@ type:
 tupleType:
                 type %prec ','
                 {
-                    $$ = []lambda.AST{$1}
+                    $$ = []gollum.AST{$1}
                 }
         |       tupleType ',' type
                 {
@@ -215,7 +215,7 @@ tupleType:
 application:
                 expression '(' expressionList ')'
                 {
-                    $$ = &lambda.Application{
+                    $$ = &gollum.Application{
                         Loc: extend($1.Location(), $4.loc),
                         Func: $1,
                         Args: $3,
@@ -224,7 +224,7 @@ application:
 
 expressionList:
                 {
-                    $$ = []lambda.AST{}
+                    $$ = []gollum.AST{}
                 }
         |       expressions
         |       expressions ','
@@ -232,7 +232,7 @@ expressionList:
 expressions:
                 expression
                 {
-                    $$ = []lambda.AST{$1}
+                    $$ = []gollum.AST{$1}
                 }
         |       expressions ',' expression
                 {
@@ -241,7 +241,7 @@ expressions:
 
 let:            tokLet bindingList tokIn brackExpr
                 {
-                    $$ = &lambda.Let{
+                    $$ = &gollum.Let{
                         Loc: extend($1.loc, $4.Location()),
                         Bindings: $2,
                         Body: $4,
@@ -249,7 +249,7 @@ let:            tokLet bindingList tokIn brackExpr
                 }
         |       tokLet tokRec bindingList tokIn brackExpr
                 {
-                    $$ = &lambda.Let{
+                    $$ = &gollum.Let{
                         Loc: extend($1.loc, $5.Location()),
                         Bindings: $3,
                         Body: $5,
@@ -259,7 +259,7 @@ let:            tokLet bindingList tokIn brackExpr
 
 bindingList:
                 {
-                    $$ = []lambda.AST{}
+                    $$ = []gollum.AST{}
                 }
         |       bindings
         |       bindings ','
@@ -267,7 +267,7 @@ bindingList:
 bindings:
                 binding
                 {
-                    $$ = []lambda.AST{$1}
+                    $$ = []gollum.AST{$1}
                 }
         |       bindings ',' binding
                 {
@@ -277,7 +277,7 @@ bindings:
 binding:
                 typedecl '=' expression
                 {
-                    $$ = &lambda.NameBinding{
+                    $$ = &gollum.NameBinding{
                         Loc: extend($1.Location(), $3.Location()),
                         Var: $1,
                         Value: $3,

@@ -2,7 +2,7 @@ package testutil
 
 import (
 	"bytes"
-	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum"
 	"github.com/nelhage/gollum/parse"
 	"io/ioutil"
 	"os"
@@ -50,7 +50,7 @@ func ListDir(t testing.TB, dir string) []TestFile {
 }
 
 // MustParse parses a TestFile into an AST, or aborts via t.Fatal
-func MustParse(t testing.TB, tc TestFile) lambda.AST {
+func MustParse(t testing.TB, tc TestFile) gollum.AST {
 	buf := bytes.NewBuffer(tc.Body)
 	ast, err := parse.Parse(buf, tc.Name)
 	if err != nil {

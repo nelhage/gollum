@@ -1,6 +1,6 @@
 package asteval
 
-import lambda "github.com/nelhage/gollum"
+import "github.com/nelhage/gollum"
 
 // Value is a runtime value
 type Value interface {
@@ -40,7 +40,7 @@ func (n *NativeFunction) isValue() {}
 type Closure struct {
 	Env  *Environment
 	Args []string
-	Body lambda.AST
+	Body gollum.AST
 }
 
 func (c *Closure) isValue() {}

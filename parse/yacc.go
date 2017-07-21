@@ -5,7 +5,7 @@ import __yyfmt__ "fmt"
 
 //line yacc.y:3
 import (
-	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum"
 )
 
 var keywords = map[string]token{
@@ -23,8 +23,8 @@ var keywords = map[string]token{
 //line yacc.y:23
 type yySymType struct {
 	yys  int
-	ast  lambda.AST
-	asts []lambda.AST
+	ast  gollum.AST
+	asts []gollum.AST
 	tok  *tokenStruct
 }
 
@@ -528,7 +528,7 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:86
 		{
-			yyVAL.ast = &lambda.Boolean{
+			yyVAL.ast = &gollum.Boolean{
 				Loc:   yyDollar[1].tok.loc,
 				Value: yyDollar[1].tok.val.(string) == "true",
 			}
@@ -537,7 +537,7 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:93
 		{
-			yyVAL.ast = &lambda.Integer{
+			yyVAL.ast = &gollum.Integer{
 				Loc:   yyDollar[1].tok.loc,
 				Value: yyDollar[1].tok.val.(int64),
 			}
@@ -546,7 +546,7 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:100
 		{
-			yyVAL.ast = &lambda.String{
+			yyVAL.ast = &gollum.String{
 				Loc:   yyDollar[1].tok.loc,
 				Value: yyDollar[1].tok.val.(string),
 			}
@@ -555,7 +555,7 @@ yydefault:
 		yyDollar = yyS[yypt-5 : yypt+1]
 		//line yacc.y:109
 		{
-			yyVAL.ast = &lambda.If{
+			yyVAL.ast = &gollum.If{
 				Loc:        extend(yyDollar[1].tok.loc, yyDollar[5].ast.Location()),
 				Condition:  yyDollar[2].ast,
 				Consequent: yyDollar[3].ast,
@@ -566,7 +566,7 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:119
 		{
-			yyVAL.ast = &lambda.Variable{
+			yyVAL.ast = &gollum.Variable{
 				Loc: yyDollar[1].tok.loc,
 				Var: yyDollar[1].tok.val.(string),
 			}
@@ -575,7 +575,7 @@ yydefault:
 		yyDollar = yyS[yypt-5 : yypt+1]
 		//line yacc.y:128
 		{
-			yyVAL.ast = &lambda.Abstraction{
+			yyVAL.ast = &gollum.Abstraction{
 				Loc:  extend(yyDollar[1].tok.loc, yyDollar[5].ast.Location()),
 				Vars: yyDollar[3].asts,
 				Body: yyDollar[5].ast,
@@ -585,13 +585,13 @@ yydefault:
 		yyDollar = yyS[yypt-0 : yypt+1]
 		//line yacc.y:137
 		{
-			yyVAL.asts = []lambda.AST{}
+			yyVAL.asts = []gollum.AST{}
 		}
 	case 20:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:144
 		{
-			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
+			yyVAL.asts = []gollum.AST{yyDollar[1].ast}
 		}
 	case 21:
 		yyDollar = yyS[yypt-3 : yypt+1]
@@ -603,7 +603,7 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:154
 		{
-			yyVAL.ast = &lambda.TypedName{
+			yyVAL.ast = &gollum.TypedName{
 				Loc:  yyDollar[1].tok.loc,
 				Name: yyDollar[1].tok.val.(string),
 				Type: nil,
@@ -613,7 +613,7 @@ yydefault:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		//line yacc.y:162
 		{
-			yyVAL.ast = &lambda.TypedName{
+			yyVAL.ast = &gollum.TypedName{
 				Loc:  yyDollar[1].tok.loc,
 				Name: yyDollar[1].tok.val.(string),
 				Type: yyDollar[3].ast,
@@ -623,7 +623,7 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:172
 		{
-			yyVAL.ast = &lambda.TyName{
+			yyVAL.ast = &gollum.TyName{
 				Loc:  yyDollar[1].tok.loc,
 				Type: yyDollar[1].tok.val.(string),
 			}
@@ -632,7 +632,7 @@ yydefault:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		//line yacc.y:179
 		{
-			yyVAL.ast = &lambda.TyArrow{
+			yyVAL.ast = &gollum.TyArrow{
 				Loc:   extend(yyDollar[1].ast.Location(), yyDollar[3].ast.Location()),
 				Dom:   yyDollar[1].ast,
 				Range: yyDollar[3].ast,
@@ -648,7 +648,7 @@ yydefault:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		//line yacc.y:191
 		{
-			yyVAL.ast = &lambda.TyTuple{
+			yyVAL.ast = &gollum.TyTuple{
 				Loc:  extend(yyDollar[1].tok.loc, yyDollar[3].tok.loc),
 				Elts: yyDollar[2].asts,
 			}
@@ -657,7 +657,7 @@ yydefault:
 		yyDollar = yyS[yypt-4 : yypt+1]
 		//line yacc.y:198
 		{
-			yyVAL.ast = &lambda.TyTuple{
+			yyVAL.ast = &gollum.TyTuple{
 				Loc:  extend(yyDollar[1].tok.loc, yyDollar[3].tok.loc),
 				Elts: yyDollar[2].asts,
 			}
@@ -666,7 +666,7 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:207
 		{
-			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
+			yyVAL.asts = []gollum.AST{yyDollar[1].ast}
 		}
 	case 30:
 		yyDollar = yyS[yypt-3 : yypt+1]
@@ -678,7 +678,7 @@ yydefault:
 		yyDollar = yyS[yypt-4 : yypt+1]
 		//line yacc.y:217
 		{
-			yyVAL.ast = &lambda.Application{
+			yyVAL.ast = &gollum.Application{
 				Loc:  extend(yyDollar[1].ast.Location(), yyDollar[4].tok.loc),
 				Func: yyDollar[1].ast,
 				Args: yyDollar[3].asts,
@@ -688,13 +688,13 @@ yydefault:
 		yyDollar = yyS[yypt-0 : yypt+1]
 		//line yacc.y:226
 		{
-			yyVAL.asts = []lambda.AST{}
+			yyVAL.asts = []gollum.AST{}
 		}
 	case 35:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:234
 		{
-			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
+			yyVAL.asts = []gollum.AST{yyDollar[1].ast}
 		}
 	case 36:
 		yyDollar = yyS[yypt-3 : yypt+1]
@@ -706,7 +706,7 @@ yydefault:
 		yyDollar = yyS[yypt-4 : yypt+1]
 		//line yacc.y:243
 		{
-			yyVAL.ast = &lambda.Let{
+			yyVAL.ast = &gollum.Let{
 				Loc:      extend(yyDollar[1].tok.loc, yyDollar[4].ast.Location()),
 				Bindings: yyDollar[2].asts,
 				Body:     yyDollar[4].ast,
@@ -716,7 +716,7 @@ yydefault:
 		yyDollar = yyS[yypt-5 : yypt+1]
 		//line yacc.y:251
 		{
-			yyVAL.ast = &lambda.Let{
+			yyVAL.ast = &gollum.Let{
 				Loc:       extend(yyDollar[1].tok.loc, yyDollar[5].ast.Location()),
 				Bindings:  yyDollar[3].asts,
 				Body:      yyDollar[5].ast,
@@ -727,13 +727,13 @@ yydefault:
 		yyDollar = yyS[yypt-0 : yypt+1]
 		//line yacc.y:261
 		{
-			yyVAL.asts = []lambda.AST{}
+			yyVAL.asts = []gollum.AST{}
 		}
 	case 42:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line yacc.y:269
 		{
-			yyVAL.asts = []lambda.AST{yyDollar[1].ast}
+			yyVAL.asts = []gollum.AST{yyDollar[1].ast}
 		}
 	case 43:
 		yyDollar = yyS[yypt-3 : yypt+1]
@@ -745,7 +745,7 @@ yydefault:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		//line yacc.y:279
 		{
-			yyVAL.ast = &lambda.NameBinding{
+			yyVAL.ast = &gollum.NameBinding{
 				Loc:   extend(yyDollar[1].ast.Location(), yyDollar[3].ast.Location()),
 				Var:   yyDollar[1].ast,
 				Value: yyDollar[3].ast,

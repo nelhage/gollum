@@ -4,20 +4,20 @@ package parse
 
 import (
 	"errors"
-	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum"
 	"io"
 	"strconv"
 	"unicode"
 )
 
 type lexer struct {
-	pos      lambda.Pos
+	pos      gollum.Pos
 	filename string
 
 	ioErr error
 	r     offsetReader
 
-	result lambda.AST
+	result gollum.AST
 	errors []error
 }
 
@@ -81,8 +81,8 @@ func (l *lexer) token(t token, val interface{}) (token, interface{}, error) {
 	return t, val, nil
 }
 
-func (l *lexer) Loc() lambda.Loc {
-	return lambda.Loc{File: l.filename, Begin: l.pos, End: l.r.pos}
+func (l *lexer) Loc() gollum.Loc {
+	return gollum.Loc{File: l.filename, Begin: l.pos, End: l.r.pos}
 }
 
 func (l *lexer) next() (token, interface{}, error) {
@@ -168,7 +168,7 @@ func (l *lexer) string(r rune) (token, interface{}, error) {
 // yacc interface
 
 type tokenStruct struct {
-	loc lambda.Loc
+	loc gollum.Loc
 	val interface{}
 }
 
@@ -187,14 +187,14 @@ func (l *lexer) Error(e string) {
 	l.errors = append(l.errors, &Error{l.Loc(), e})
 }
 
-func extend(l, r lambda.Loc) lambda.Loc {
+func extend(l, r gollum.Loc) gollum.Loc {
 	if l.File != r.File {
 		panic("extend filename")
 	}
 	if l.Begin.Offset > r.End.Offset {
 		panic("extend order")
 	}
-	return lambda.Loc{
+	return gollum.Loc{
 		File:  l.File,
 		Begin: l.Begin,
 		End:   r.End,

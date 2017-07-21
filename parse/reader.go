@@ -1,12 +1,12 @@
 package parse
 
 import (
-	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum"
 	"io"
 )
 
 type offsetReader struct {
-	prev, pos lambda.Pos
+	prev, pos gollum.Pos
 	r         io.RuneScanner
 }
 

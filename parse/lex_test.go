@@ -2,14 +2,14 @@ package parse
 
 import (
 	"bufio"
-	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum"
 	"reflect"
 	"strings"
 	"testing"
 )
 
 type fullTok struct {
-	loc lambda.Loc
+	loc gollum.Loc
 	tok token
 	val interface{}
 }
@@ -37,11 +37,11 @@ func lex(s string) []fullTok {
 }
 
 func TestLex(t *testing.T) {
-	l := func(b, e uint) lambda.Loc {
-		return lambda.Loc{
+	l := func(b, e uint) gollum.Loc {
+		return gollum.Loc{
 			File:  "<test>",
-			Begin: lambda.Pos{Offset: b, Line: 0, Column: b},
-			End:   lambda.Pos{Offset: e, Line: 0, Column: e},
+			Begin: gollum.Pos{Offset: b, Line: 0, Column: b},
+			End:   gollum.Pos{Offset: e, Line: 0, Column: e},
 		}
 	}
 

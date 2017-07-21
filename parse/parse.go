@@ -3,13 +3,13 @@ package parse
 import (
 	"bufio"
 	"fmt"
-	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum"
 	"io"
 )
 
 // Parse parses an AST out of a stream. Returned locations will be
 // labeled with the provided filename.
-func Parse(in io.Reader, filename string) (lambda.AST, error) {
+func Parse(in io.Reader, filename string) (gollum.AST, error) {
 	lex := &lexer{
 		r: offsetReader{
 			r: bufio.NewReader(in),
@@ -26,7 +26,7 @@ func Parse(in io.Reader, filename string) (lambda.AST, error) {
 
 // Error will be returned for syntax error
 type Error struct {
-	Loc lambda.Loc
+	Loc gollum.Loc
 	Err string
 }
 

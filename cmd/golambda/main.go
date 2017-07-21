@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/kr/pretty"
-	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum"
 	"github.com/nelhage/gollum/asteval"
 	"github.com/nelhage/gollum/parse"
 )
@@ -48,14 +48,14 @@ func main() {
 		pretty.Println("ast: ", ast)
 	}
 
-	var ty lambda.Type
+	var ty gollum.Type
 	if !*untyped {
-		ty, err = lambda.TypeCheck(ast, lambda.GlobalEnv)
+		ty, err = gollum.TypeCheck(ast, gollum.GlobalEnv)
 		if err != nil {
 			log.Fatalf("typechecking: %v", err)
 		}
 		if *printType {
-			fmt.Println("type: ", lambda.PrintType(ty))
+			fmt.Println("type: ", gollum.PrintType(ty))
 		}
 	}
 
@@ -68,7 +68,7 @@ func main() {
 		if *untyped {
 			fmt.Printf("value: <fun>/%d\n", len(cl.Args))
 		} else {
-			fmt.Println("value: <fun> : ", lambda.PrintType(ty))
+			fmt.Println("value: <fun> : ", gollum.PrintType(ty))
 		}
 	} else {
 		pretty.Println("value: ", v)

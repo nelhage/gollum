@@ -2,35 +2,35 @@ package asteval
 
 import (
 	"fmt"
-	lambda "github.com/nelhage/gollum"
+	"github.com/nelhage/gollum"
 )
 
 // Eval evaluate an AST node within the specified Environment
-func Eval(a lambda.AST, e *Environment) (Value, error) {
+func Eval(a gollum.AST, e *Environment) (Value, error) {
 	switch n := a.(type) {
-	case *lambda.Boolean:
+	case *gollum.Boolean:
 		return &Boolean{n.Value}, nil
-	case *lambda.String:
+	case *gollum.String:
 		return &String{n.Value}, nil
-	case *lambda.Integer:
+	case *gollum.Integer:
 		return &Integer{n.Value}, nil
-	case *lambda.Variable:
+	case *gollum.Variable:
 		v := e.Lookup(n.Var)
 		if v == nil {
 			return nil, UnboundVariable{n.Var}
 		}
 		return v, nil
-	case *lambda.Abstraction:
+	case *gollum.Abstraction:
 		var names []string
 		for _, v := range n.Vars {
-			names = append(names, v.(*lambda.TypedName).Name)
+			names = append(names, v.(*gollum.TypedName).Name)
 		}
 		return &Closure{
 			Env:  e,
 			Args: names,
 			Body: n.Body,
 		}, nil
-	case *lambda.Application:
+	case *gollum.Application:
 		fn, err := Eval(n.Func, e)
 		if err != nil {
 			return nil, err
@@ -46,7 +46,7 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 			return nil, err
 		}
 		return evalFunc(fn, argv, e)
-	case *lambda.If:
+	case *gollum.If:
 		cond, err := Eval(n.Condition, e)
 		if err != nil {
 			return nil, err
@@ -61,12 +61,12 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 		}
 		return Eval(n.Alternate, e)
 
-	case *lambda.Let:
+	case *gollum.Let:
 		var names []string
 		var vals []Value
 		for _, v := range n.Bindings {
-			nb := v.(*lambda.NameBinding)
-			name := nb.Var.(*lambda.TypedName).Name
+			nb := v.(*gollum.NameBinding)
+			name := nb.Var.(*gollum.TypedName).Name
 			names = append(names, name)
 			vals = append(vals, &Integer{})
 		}
@@ -74,7 +74,7 @@ func Eval(a lambda.AST, e *Environment) (Value, error) {
 			e = e.Extend(names, vals)
 		}
 		for i, v := range n.Bindings {
-			nb := v.(*lambda.NameBinding)
+			nb := v.(*gollum.NameBinding)
 			val, err := Eval(nb.Value, e)
 			if err != nil {
 				return nil, err
