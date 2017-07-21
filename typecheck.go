@@ -184,10 +184,6 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i := range cs {
-		cs[i].left = tcs.mapTypes(cs[i].left)
-		cs[i].right = tcs.mapTypes(cs[i].right)
-	}
 	err = tcs.unify(cs)
 	if err != nil {
 		return nil, err
