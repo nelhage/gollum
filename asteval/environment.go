@@ -35,7 +35,7 @@ func (e *Environment) Extend(names []string, vals []Value) *Environment {
 	return e
 }
 
-// Sets a number of name, value pairs in the local frame
+// SetLocal sets a number of name, value pairs in the local frame
 func (e *Environment) SetLocal(names []string, vals []Value) {
 	for i, n := range names {
 		if _, ok := e.Frame[n]; !ok {

@@ -124,6 +124,13 @@ func (tcs *tcState) unify(cs []constraint) error {
 		left := tcs.mapTypes(c.left)
 		right := tcs.mapTypes(c.right)
 
+		if debug {
+			log.Printf("unify %s = %s | %s = %s",
+				PrintType(c.left), PrintType(c.right),
+				PrintType(left), PrintType(right),
+			)
+		}
+
 		if left == right {
 			continue
 		}
@@ -286,6 +293,7 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 
 		return conType, nil
 	case *Let:
+		parent := env
 		var names []string
 		var types []Type
 		var vars []int64
@@ -327,16 +335,17 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 					return nil, err
 				}
 			}
-			names = append(names, tn.Name)
 			if syntacticValue(nb.Value) {
-				vty = tcs.generalize(vty, env)
+				vty = tcs.generalize(vty, parent)
 			}
 			if debug {
 				log.Printf("let %s : %s", tn.Name, PrintType(vty))
 			}
-			types = append(types, vty)
+			types[i] = vty
 		}
-		if !n.Recursive {
+		if n.Recursive {
+			env.SetLocal(names, types)
+		} else {
 			env = env.Extend(names, types, vars)
 		}
 		bty, err := tcs.typeCheck(n.Body, env)

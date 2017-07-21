@@ -1,3 +1,4 @@
+let _1 = (
 let id = fn(x){x}
 in {
  let
@@ -7,3 +8,14 @@ in {
   _4 = id(id)(id)(0)
   in { false }
 }
+), _2 = (
+let rec id = fn(x){x}
+in {
+ let
+  _1 = id(0),
+  _2 = id(true),
+  _3 = id(id),
+  _4 = id(id)(id)(0)
+  in { false }
+}
+) in {0}

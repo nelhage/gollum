@@ -1,5 +1,7 @@
 package lambda
 
+import "fmt"
+
 // TypeEnv is the type of a typing environment
 type TypeEnv struct {
 	Frame  map[string]Type
@@ -34,6 +36,19 @@ func (e *TypeEnv) Extend(names []string, vals []Type, vars []int64) *TypeEnv {
 		e.Frame[n] = vals[i]
 	}
 	return e
+}
+
+// SetLocal sets a number of name, value pairs in the local frame
+func (e *TypeEnv) SetLocal(names []string, vals []Type) {
+	if len(names) != len(vals) {
+		panic("SetLocal: name/value mismatch")
+	}
+	for i, n := range names {
+		if _, ok := e.Frame[n]; !ok {
+			panic(fmt.Sprintf("SetLocal: %s", n))
+		}
+		e.Frame[n] = vals[i]
+	}
 }
 
 // BoundVars returns a list of all type variables bound in e
