@@ -199,6 +199,11 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 	return mapped, nil
 }
 
+func syntacticValue(ast AST) bool {
+	_, ok := ast.(*Abstraction)
+	return ok
+}
+
 func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, error) {
 	switch n := ast.(type) {
 	case *Boolean:
@@ -316,11 +321,13 @@ func (tcs *tcState) constraints(ast AST, env *TypeEnv) (Type, []constraint, erro
 				}
 			}
 			names = append(names, tn.Name)
-			gen := tcs.generalize(vty, env)
-			if debug {
-				log.Printf("let %s : %s", tn.Name, PrintType(gen))
+			if syntacticValue(nb.Value) {
+				vty = tcs.generalize(vty, env)
 			}
-			types = append(types, gen)
+			if debug {
+				log.Printf("let %s : %s", tn.Name, PrintType(vty))
+			}
+			types = append(types, vty)
 		}
 		bty, err := tcs.typeCheck(n.Body, env.Extend(names, types, nil))
 		if err != nil {

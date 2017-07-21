@@ -1,0 +1,9 @@
+fn(id) {
+ let id1 = id in {
+  let _1 = id1(0),
+      _2 = id1(true),
+      _3 = id1(id1) in {
+    false
+  }
+ }
+}(fn(x){x})

@@ -1,0 +1,6 @@
+let id = (let id=fn(x){x} in {id}) in {
+ let _1 = id(0),
+     _2 = id(false) in {
+  1
+ }
+}
