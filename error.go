@@ -96,12 +96,12 @@ func PrintType(t Type) string {
 		}
 		return fmt.Sprintf("(%s)", strings.Join(bits, ", "))
 	case *TypeVariable:
-		return varname(n.Var)
+		return base26name(n.Var)
 	case *Forall:
 		var b bytes.Buffer
 		b.WriteString("∀")
 		for i, v := range n.Vars {
-			b.WriteString(varname(v))
+			b.WriteString(base26name(v.Var))
 			if i != len(n.Vars)-1 {
 				b.WriteString(",")
 			}
@@ -118,14 +118,14 @@ func bad(where string, ty Type) string {
 	return fmt.Sprintf("%s: unexpected type: %#v", where, ty)
 }
 
-func varname(v int64) string {
+func base26name(v int64) string {
 	// ceil(log_26(2**64))
 	var buf [14]byte
 	i := len(buf)
 
 	for {
 		i--
-		buf[i] = byte('A' + (v % 26))
+		buf[i] = byte('a' + (v % 26))
 		v /= 26
 		if v == 0 {
 			break

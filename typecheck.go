@@ -13,28 +13,26 @@ type constraint struct {
 }
 
 type typeSub struct {
-	v  int64
+	v  *TypeVariable
 	ty Type
 }
 
-type typeMap []*typeSub
-
 type tcState struct {
 	nextSym int64
-	soln    map[int64]*typeSub
+	soln    map[*TypeVariable]*typeSub
 }
 
 func (tcs *tcState) gensym() Type {
 	n := tcs.nextSym
 	tcs.nextSym++
 
-	return &TypeVariable{n}
+	return &TypeVariable{n, nil}
 }
 
 // TypeCheck typechecks an AST and returns the type of the AST
 // structure
 func TypeCheck(ast AST, env *TypeEnv) (Type, error) {
-	tcs := tcState{soln: make(map[int64]*typeSub)}
+	tcs := tcState{soln: make(map[*TypeVariable]*typeSub)}
 	ty, err := tcs.typeCheck(ast, env)
 	if ty != nil {
 		ty = tcs.mapTypes(ty)
@@ -44,7 +42,7 @@ func TypeCheck(ast AST, env *TypeEnv) (Type, error) {
 
 func (tcs *tcState) mapTypes(ty Type) Type {
 	return mapVars(func(v *TypeVariable) Type {
-		if ent, ok := tcs.soln[v.Var]; ok {
+		if ent, ok := tcs.soln[v]; ok {
 			mapped := tcs.mapTypes(ent.ty)
 			ent.ty = mapped
 			return ent.ty
@@ -53,7 +51,7 @@ func (tcs *tcState) mapTypes(ty Type) Type {
 	}, ty)
 }
 
-func (tcs *tcState) addMapping(from int64, to Type) {
+func (tcs *tcState) addMapping(from *TypeVariable, to Type) {
 	tcs.soln[from] = &typeSub{from, to}
 }
 
@@ -78,18 +76,18 @@ func occur(v *TypeVariable, ty Type) bool {
 }
 
 func (tcs *tcState) generalize(ty Type, e *TypeEnv) Type {
-	bound := make(map[int64]struct{})
+	bound := make(map[*TypeVariable]struct{})
 	for _, b := range e.BoundVars() {
 		bound[b] = struct{}{}
 	}
-	free := make(map[int64]struct{})
+	free := make(map[*TypeVariable]struct{})
 	mapVars(func(tv *TypeVariable) Type {
-		if _, ok := bound[tv.Var]; !ok {
-			free[tv.Var] = struct{}{}
+		if _, ok := bound[tv]; !ok {
+			free[tv] = struct{}{}
 		}
 		return tv
 	}, ty)
-	var quantify []int64
+	var quantify []*TypeVariable
 	for f := range free {
 		quantify = append(quantify, f)
 	}
@@ -104,12 +102,12 @@ func (tcs *tcState) instantiate(ty Type) Type {
 	if !ok {
 		return ty
 	}
-	rename := make(map[int64]Type, len(forall.Vars))
+	rename := make(map[*TypeVariable]Type, len(forall.Vars))
 	for _, v := range forall.Vars {
 		rename[v] = tcs.gensym()
 	}
 	return mapVars(func(tv *TypeVariable) Type {
-		if newv, ok := rename[tv.Var]; ok {
+		if newv, ok := rename[tv]; ok {
 			return newv
 		}
 		return tv
@@ -140,12 +138,12 @@ func (tcs *tcState) unify(cs []constraint) error {
 				return &OccurCheck{c.node, left, right}
 			}
 
-			tcs.addMapping(v.Var, right)
+			tcs.addMapping(v, right)
 		} else if v, ok := right.(*TypeVariable); ok {
 			if occur(v, left) {
 				return &OccurCheck{c.node, left, right}
 			}
-			tcs.addMapping(v.Var, left)
+			tcs.addMapping(v, left)
 		} else if lf, ok := left.(*FunctionType); ok {
 			rf, ok := right.(*FunctionType)
 			if !ok {
@@ -212,14 +210,14 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 	case *Abstraction:
 		var names []string
 		var types []Type
-		var bound []int64
+		var bound []*TypeVariable
 
 		for _, v := range n.Vars {
 			var argType Type
 			tv := v.(*TypedName)
 			if tv.Type == nil {
 				argType = tcs.gensym()
-				bound = append(bound, argType.(*TypeVariable).Var)
+				bound = append(bound, argType.(*TypeVariable))
 			} else {
 				var e error
 				argType, e = ParseType(tv.Type)
@@ -296,12 +294,12 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 		parent := env
 		var names []string
 		var types []Type
-		var vars []int64
+		var vars []*TypeVariable
 		for _, b := range n.Bindings {
 			nb := b.(*NameBinding)
 			tn := nb.Var.(*TypedName)
 			ty := tcs.gensym()
-			vars = append(vars, ty.(*TypeVariable).Var)
+			vars = append(vars, ty.(*TypeVariable))
 			names = append(names, tn.Name)
 			types = append(types, ty)
 		}
@@ -437,7 +435,7 @@ func Equal(l, r Type) bool {
 		return true
 	case *TypeVariable:
 		rv, ok := r.(*TypeVariable)
-		return ok && t.Var == rv.Var
+		return ok && t == rv
 	default:
 		panic(fmt.Sprintf("unhandled type: %#v", l))
 	}

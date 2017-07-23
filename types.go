@@ -36,7 +36,7 @@ func (t *TupleType) isType() {}
 
 // Forall is the type of a universally qualified type term
 type Forall struct {
-	Vars []int64
+	Vars []*TypeVariable
 	Type Type
 }
 

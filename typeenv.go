@@ -6,7 +6,7 @@ import "fmt"
 type TypeEnv struct {
 	Frame  map[string]Type
 	Parent *TypeEnv
-	Vars   []int64
+	Vars   []*TypeVariable
 }
 
 // Lookup looks up a value in an environment
@@ -23,7 +23,7 @@ func (e *TypeEnv) Lookup(name string) Type {
 
 // Extend returns an environment that inherits from `e` but includes
 // an additional set of bindings
-func (e *TypeEnv) Extend(names []string, vals []Type, vars []int64) *TypeEnv {
+func (e *TypeEnv) Extend(names []string, vals []Type, vars []*TypeVariable) *TypeEnv {
 	if len(names) != len(vals) {
 		panic("Extend: name/value mismatch")
 	}
@@ -52,8 +52,8 @@ func (e *TypeEnv) SetLocal(names []string, vals []Type) {
 }
 
 // BoundVars returns a list of all type variables bound in e
-func (e *TypeEnv) BoundVars() []int64 {
-	var out []int64
+func (e *TypeEnv) BoundVars() []*TypeVariable {
+	var out []*TypeVariable
 	for e != nil {
 		out = append(out, e.Vars...)
 		e = e.Parent
