@@ -28,13 +28,25 @@ func TestParser(t *testing.T) {
 	for _, tc := range bad {
 		t.Run("bad/"+tc.Name, func(t *testing.T) {
 			buf := bytes.NewBuffer(tc.Body)
-			ast, err := parse.Parse(buf, tc.Name)
+			ast, err := parse.Program(buf, tc.Name)
 			if err == nil {
 				ioutil.WriteFile(
 					tc.Path+".ast",
 					[]byte(pretty.Sprint(ast)),
 					0644)
 				log.Fatalf("parse(%q): ok", tc.Name)
+			}
+		})
+	}
+}
+
+func TestParseType(t *testing.T) {
+	types := testutil.ListDir(t, "type")
+	for _, tc := range types {
+		t.Run("types/"+tc.Name, func(t *testing.T) {
+			_, err := parse.Type(bytes.NewReader(tc.Body), tc.Path)
+			if err != nil {
+				t.Fatalf("parse(%q): %v", tc.Path, err)
 			}
 		})
 	}

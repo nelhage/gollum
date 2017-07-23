@@ -2,13 +2,14 @@ package testutil
 
 import (
 	"bytes"
-	"github.com/nelhage/gollum"
-	"github.com/nelhage/gollum/parse"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/nelhage/gollum"
+	"github.com/nelhage/gollum/parse"
 )
 
 // TestFile is a test case loaded from a testdata directory
@@ -52,7 +53,7 @@ func ListDir(t testing.TB, dir string) []TestFile {
 // MustParse parses a TestFile into an AST, or aborts via t.Fatal
 func MustParse(t testing.TB, tc TestFile) gollum.AST {
 	buf := bytes.NewBuffer(tc.Body)
-	ast, err := parse.Parse(buf, tc.Name)
+	ast, err := parse.Program(buf, tc.Name)
 	if err != nil {
 		t.Fatalf("parse(%q): %v", tc.Name, err)
 	}

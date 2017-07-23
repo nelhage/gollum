@@ -4,10 +4,11 @@ package parse
 
 import (
 	"errors"
-	"github.com/nelhage/gollum"
 	"io"
 	"strconv"
 	"unicode"
+
+	"github.com/nelhage/gollum"
 )
 
 type lexer struct {
@@ -17,8 +18,12 @@ type lexer struct {
 	ioErr error
 	r     offsetReader
 
-	result gollum.AST
+	expression gollum.AST
+	ty         gollum.AST
+
 	errors []error
+
+	initTok token
 }
 
 type token int
@@ -86,6 +91,12 @@ func (l *lexer) Loc() gollum.Loc {
 }
 
 func (l *lexer) next() (token, interface{}, error) {
+	if l.initTok != 0 {
+		t := l.initTok
+		l.initTok = 0
+		return t, nil, nil
+	}
+
 	var r rune
 skipws:
 	for {

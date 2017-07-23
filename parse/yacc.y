@@ -26,6 +26,7 @@ var keywords = map[string]token{
     tok *tokenStruct
 }
 
+%type   <ast>           program
 %type   <ast>           expression brackExpr literal condition
 %type   <ast>           variable abstraction application let
 
@@ -47,6 +48,7 @@ var keywords = map[string]token{
 %token  <tok>           tokBoolean tokNumber tokStr
 %token  <tok>           tokIdent
 %token  <tok>           tokArrow
+%token  <tok>           tokIntType
 %token  <tok>           ',' '(' ')' '{' '}' ':'
 
 %right tokArrow
@@ -55,11 +57,16 @@ var keywords = map[string]token{
 
 %%
 
-program:
-                expression
+top:            program
                 {
-                    yylex.(*lexer).result = $1
+                    yylex.(*lexer).expression = $1
                 }
+        |       tokIntType type
+                {
+                    yylex.(*lexer).ty = $2
+                }
+
+program:        expression
 
 expression:
                 literal

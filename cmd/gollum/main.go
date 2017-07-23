@@ -38,7 +38,7 @@ func main() {
 		r = os.Stdin
 		path = "<stdin>"
 	}
-	ast, err := parse.Parse(r, path)
+	ast, err := parse.Program(r, path)
 
 	if err != nil {
 		log.Fatalf("parse error: %v", err)
