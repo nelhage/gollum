@@ -1,1 +1,2 @@
+# type: (a -> b) -> (bool -> a) -> b
 fn(z) { fn (y) { z(y(true)) }}

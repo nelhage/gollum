@@ -440,3 +440,14 @@ func Equal(l, r Type) bool {
 		panic(fmt.Sprintf("unhandled type: %#v", l))
 	}
 }
+
+// Unify checks if two types, including free type variables, are
+// unifiable, and returns the unified type, if possible.
+func Unify(l, r Type) (Type, error) {
+	tcs := tcState{soln: make(map[*TypeVariable]*typeSub)}
+	err := tcs.unify([]constraint{{nil, l, r}})
+	if err != nil {
+		return tcs.mapTypes(l), nil
+	}
+	return nil, err
+}

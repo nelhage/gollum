@@ -1,11 +1,13 @@
 package gollum_test
 
 import (
+	"bytes"
 	"io/ioutil"
 	"regexp"
 	"testing"
 
 	"github.com/nelhage/gollum"
+	"github.com/nelhage/gollum/parse"
 	"github.com/nelhage/gollum/testutil"
 )
 
@@ -30,12 +32,17 @@ func TestTypeCheck(t *testing.T) {
 
 			groups := typeComment.FindSubmatch(tc.Body)
 			if groups != nil {
-				got := gollum.PrintType(ty)
-				want := groups[1]
-				if string(want) != got {
-					t.Errorf("want type=%q got=%q",
-						want, got,
-					)
+				t.Logf("%q: want: %q", tc.Name, groups[1])
+				ast, err := parse.Type(bytes.NewReader(groups[1]), "<#type>")
+				var want gollum.Type
+				if err == nil {
+					want, err = gollum.ParseType(ast, gollum.GlobalEnv)
+				}
+				if err == nil {
+					_, err = gollum.Unify(want, ty)
+				}
+				if err != nil {
+					t.Fatalf(err.Error())
 				}
 			}
 		})

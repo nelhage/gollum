@@ -1,1 +1,2 @@
+# type: a -> bool
 fn(x) { true }
