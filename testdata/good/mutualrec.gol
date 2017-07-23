@@ -1,0 +1,5 @@
+let rec
+ iseven = fn(x) { if(iszero(x)) { true } else { isodd(dec(x)) }},
+ isodd  = fn(x) { if(iszero(x)) { false } else { iseven(dec(x)) }} in {
+ iseven(14)
+}
