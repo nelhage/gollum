@@ -26,7 +26,7 @@ func (tcs *tcState) gensym() Type {
 	n := tcs.nextSym
 	tcs.nextSym++
 
-	return &TypeVariable{n, nil}
+	return &TypeVariable{n, ""}
 }
 
 // TypeCheck typechecks an AST and returns the type of the AST
@@ -220,7 +220,7 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 				bound = append(bound, argType.(*TypeVariable))
 			} else {
 				var e error
-				argType, e = ParseType(tv.Type)
+				argType, e = ParseType(tv.Type, env)
 				if e != nil {
 					return nil, e
 				}
@@ -323,7 +323,7 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 			}
 			if tn.Type != nil {
 				var err error
-				ty, err = ParseType(tn.Type)
+				ty, err = ParseType(tn.Type, env)
 				if err != nil {
 					return nil, err
 				}
@@ -360,16 +360,16 @@ func (tcs *tcState) typeCheck(ast AST, env *TypeEnv) (Type, error) {
 }
 
 // ParseType parses an AST that refers to a type into a type object
-func ParseType(ast AST) (Type, error) {
+func ParseType(ast AST, env *TypeEnv) (Type, error) {
 	switch n := ast.(type) {
 	case *TyName:
-		ty := GlobalTypes[n.Type]
+		ty := env.LookupType(n.Type)
 		if ty == nil {
-			return nil, UnboundType{ast, n.Type}
+			ty = env.NewVar(n.Type)
 		}
 		return ty, nil
 	case *TyArrow:
-		dom, err := ParseType(n.Dom)
+		dom, err := ParseType(n.Dom, env)
 		if err != nil {
 			return nil, err
 		}
@@ -378,7 +378,7 @@ func ParseType(ast AST) (Type, error) {
 				Elts: []Type{dom},
 			}
 		}
-		range_, err := ParseType(n.Range)
+		range_, err := ParseType(n.Range, env)
 		if err != nil {
 			return nil, err
 		}
@@ -389,7 +389,7 @@ func ParseType(ast AST) (Type, error) {
 	case *TyTuple:
 		var tys []Type
 		for _, elt := range n.Elts {
-			ty, e := ParseType(elt)
+			ty, e := ParseType(elt, env)
 			if e != nil {
 				return nil, e
 			}

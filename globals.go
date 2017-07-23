@@ -67,4 +67,6 @@ func init() {
 	GlobalTypes[intType.Name] = intType
 	GlobalTypes[boolType.Name] = boolType
 	GlobalTypes[strType.Name] = strType
+
+	GlobalEnv.Types = GlobalTypes
 }

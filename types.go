@@ -14,7 +14,13 @@ func (a *AtomicType) isType() {}
 
 // TypeVariable represents a type variable
 type TypeVariable struct {
+	// Unique counter, for debugging; TypeVariable equality is
+	// computed on identity, not contents.
 	Var int64
+
+	// "" for gensym'd variables; otherwise, the name as entered
+	// in the source.
+	Name string
 }
 
 func (a *TypeVariable) isType() {}
