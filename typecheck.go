@@ -81,11 +81,10 @@ func (tcs *tcState) generalize(ty Type, e *TypeEnv) Type {
 		bound[b] = struct{}{}
 	}
 	free := make(map[*TypeVariable]struct{})
-	mapVars(func(tv *TypeVariable) Type {
+	eachVar(func(tv *TypeVariable) {
 		if _, ok := bound[tv]; !ok {
 			free[tv] = struct{}{}
 		}
-		return tv
 	}, ty)
 	var quantify []*TypeVariable
 	for f := range free {

@@ -1,9 +1,7 @@
 package gollum
 
 import (
-	"bytes"
 	"fmt"
-	"strings"
 )
 
 // UnboundVariable is the error of referring to an undefined variable
@@ -70,67 +68,6 @@ func (o OccurCheck) Error() string {
 	)
 }
 
-// PrintType returns a string representation of a type
-func PrintType(t Type) string {
-	switch n := t.(type) {
-	case *AtomicType:
-		return n.Name
-	case *FunctionType:
-		dom := n.Dom
-		var d string
-		if dtup, ok := n.Dom.(*TupleType); ok && len(dtup.Elts) == 1 {
-			dom = dtup.Elts[0]
-		}
-
-		if _, ok := dom.(*FunctionType); ok {
-			d = fmt.Sprintf("(%s)", PrintType(dom))
-		} else {
-			d = PrintType(dom)
-		}
-		r := PrintType(n.Range)
-		return fmt.Sprintf("%s -> %s", d, r)
-	case *TupleType:
-		var bits []string
-		for _, e := range n.Elts {
-			bits = append(bits, PrintType(e))
-		}
-		return fmt.Sprintf("(%s)", strings.Join(bits, ", "))
-	case *TypeVariable:
-		return base26name(n.Var)
-	case *Forall:
-		var b bytes.Buffer
-		b.WriteString("∀")
-		for i, v := range n.Vars {
-			b.WriteString(base26name(v.Var))
-			if i != len(n.Vars)-1 {
-				b.WriteString(",")
-			}
-		}
-		b.WriteString(".")
-		b.WriteString(PrintType(n.Type))
-		return b.String()
-	default:
-		panic(fmt.Sprintf("unknown type: %#v", t))
-	}
-}
-
 func bad(where string, ty Type) string {
 	return fmt.Sprintf("%s: unexpected type: %#v", where, ty)
-}
-
-func base26name(v int64) string {
-	// ceil(log_26(2**64))
-	var buf [14]byte
-	i := len(buf)
-
-	for {
-		i--
-		buf[i] = byte('a' + (v % 26))
-		v /= 26
-		if v == 0 {
-			break
-		}
-	}
-
-	return string(buf[i:])
 }
