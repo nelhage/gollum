@@ -2,7 +2,7 @@
 fn(
  z, s,
 ) {
- s(s(z))(fn(n){add(n,1)}, 0)
+ s(s(z))(fn(n){n + 1}, 0)
 }(
  fn(s, z){z},
  fn(n){fn(s, z){s(n(s,z))}}

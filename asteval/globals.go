@@ -10,7 +10,7 @@ func init() {
 		fn    func([]Value) (Value, error)
 	}{
 		{"die", 0, func([]Value) (Value, error) { panic("die") }},
-		{"not", 1, func(vs []Value) (Value, error) {
+		{"!", 1, func(vs []Value) (Value, error) {
 			v := vs[0]
 			if b := v.(*Boolean); b != nil {
 				return &Boolean{!b.Val}, nil
@@ -18,7 +18,7 @@ func init() {
 			return nil, TypeError{v, "boolean"}
 		},
 		},
-		{"add", 2, func(vs []Value) (Value, error) {
+		{"+", 2, func(vs []Value) (Value, error) {
 			l := vs[0].(*Integer)
 			r := vs[1].(*Integer)
 			if l == nil {
@@ -30,7 +30,7 @@ func init() {
 			return &Integer{l.Val + r.Val}, nil
 		},
 		},
-		{"sub", 2, func(vs []Value) (Value, error) {
+		{"-", 2, func(vs []Value) (Value, error) {
 			l := vs[0].(*Integer)
 			r := vs[1].(*Integer)
 			if l == nil {
@@ -42,7 +42,7 @@ func init() {
 			return &Integer{l.Val - r.Val}, nil
 		},
 		},
-		{"mul", 2, func(vs []Value) (Value, error) {
+		{"*", 2, func(vs []Value) (Value, error) {
 			l := vs[0].(*Integer)
 			r := vs[1].(*Integer)
 			if l == nil {

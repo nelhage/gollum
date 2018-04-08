@@ -31,15 +31,15 @@ func init() {
 			Dom:   unitType,
 			Range: unitType,
 		}},
-		{"not", &FunctionType{
+		{"!", &FunctionType{
 			Dom: &TupleType{
 				Elts: []Type{boolType},
 			},
 			Range: boolType,
 		}},
-		{"add", binaryIntFn},
-		{"sub", binaryIntFn},
-		{"mul", binaryIntFn},
+		{"+", binaryIntFn},
+		{"-", binaryIntFn},
+		{"*", binaryIntFn},
 		{"dec", &FunctionType{
 			Dom: &TupleType{
 				Elts: []Type{intType},

@@ -21,6 +21,7 @@ type TestFile struct {
 
 // ListDir loads files from the named testdata/ subdirectory
 func ListDir(t testing.TB, dir string) []TestFile {
+	t.Helper()
 	dir = path.Join("testdata", dir)
 	f, e := os.Open(dir)
 	if e != nil {
@@ -52,6 +53,7 @@ func ListDir(t testing.TB, dir string) []TestFile {
 
 // MustParse parses a TestFile into an AST, or aborts via t.Fatal
 func MustParse(t testing.TB, tc TestFile) gollum.AST {
+	t.Helper()
 	buf := bytes.NewBuffer(tc.Body)
 	ast, err := parse.Program(buf, tc.Name)
 	if err != nil {

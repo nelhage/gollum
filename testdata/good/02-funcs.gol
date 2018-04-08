@@ -5,7 +5,7 @@ fn(
  i : (int, bool, int -> int) -> int -> int,
 ) {true} (
  fn(x : int) {0},
- fn(x : int) {fn(y: int) {add(x, y)}},
- add,
+ fn(x : int) {fn(y: int) { x + y }},
+ fn(x, y){ x + y },
  fn(i : int, j : bool, k : int -> int) {k},
 )

@@ -1,7 +1,7 @@
 let
   z = fn(s,z){z},
   s = fn(n){fn(s,z){s(n(s, z))}},
-  c2n = fn(c){c(fn(a){add(a,1)}, 0)},
+  c2n = fn(c){c(fn(a){a + 1}, 0)},
 in {
   let plus = fn(l,r) {l(s,r)}
   in {
