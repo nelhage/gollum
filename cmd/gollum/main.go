@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/kr/pretty"
 	"github.com/nelhage/gollum"
@@ -18,6 +19,7 @@ func main() {
 		printAst  = flag.Bool("ast", false, "pretty-print the AST")
 		printType = flag.Bool("type", false, "pretty-print the type")
 		untyped   = flag.Bool("untyped", false, "Don't typecheck")
+		eval      = flag.String("e", "", "Evaluate code on the command line")
 	)
 	flag.Parse()
 	if *untyped && *printType {
@@ -26,7 +28,10 @@ func main() {
 
 	var r io.Reader
 	var path string
-	if len(flag.Args()) > 0 {
+	if *eval != "" {
+		r = strings.NewReader(*eval)
+		path = "-e"
+	} else if len(flag.Args()) > 0 {
 		path = flag.Arg(0)
 		f, e := os.Open(path)
 		if e != nil {
