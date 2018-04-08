@@ -29,6 +29,7 @@ var keywords = map[string]token{
 %type   <ast>           program
 %type   <ast>           expression brackExpr literal condition
 %type   <ast>           variable abstraction application let
+%type   <ast>           arithmetic
 
 %type   <asts>          expressionList
 %type   <asts>          expressions
@@ -49,9 +50,11 @@ var keywords = map[string]token{
 %token  <tok>           tokIdent
 %token  <tok>           tokArrow
 %token  <tok>           tokIntType
-%token  <tok>           ',' '(' ')' '{' '}' ':'
+%token  <tok>           ',' '(' ')' '{' '}' ':' '+' '-' '/' '*'
 
 %right tokArrow
+%left '+' '-'
+%left '*' '/'
 %nonassoc ','
 %nonassoc ')'
 
@@ -76,6 +79,7 @@ expression:
         |       application
         |       brackExpr
         |       let
+        |       arithmetic
         |       '(' expression ')'
                 {
                     $$ = $2
@@ -289,6 +293,24 @@ binding:
                         Var: $1,
                         Value: $3,
                     }
+                }
+
+arithmetic:
+                expression '-' expression
+                {
+                    $$ = arithmetic($1, $2, $3)
+                }
+        |       expression '+' expression
+                {
+                    $$ = arithmetic($1, $2, $3)
+                }
+        |       expression '/' expression
+                {
+                    $$ = arithmetic($1, $2, $3)
+                }
+        |       expression '*' expression
+                {
+                    $$ = arithmetic($1, $2, $3)
                 }
 
 %%

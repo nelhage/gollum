@@ -179,6 +179,7 @@ func (l *lexer) string(r rune) (token, interface{}, error) {
 // yacc interface
 
 type tokenStruct struct {
+	tok token
 	loc gollum.Loc
 	val interface{}
 }
@@ -190,7 +191,7 @@ func (l *lexer) Lex(lval *yySymType) int {
 		return eof
 	}
 
-	lval.tok = &tokenStruct{l.Loc(), val}
+	lval.tok = &tokenStruct{tok, l.Loc(), val}
 	return int(tok)
 }
 
@@ -209,5 +210,16 @@ func extend(l, r gollum.Loc) gollum.Loc {
 		File:  l.File,
 		Begin: l.Begin,
 		End:   r.End,
+	}
+}
+
+func arithmetic(lhs gollum.AST, op *tokenStruct, rhs gollum.AST) gollum.AST {
+	return &gollum.Application{
+		Loc: extend(lhs.Location(), rhs.Location()),
+		Func: &gollum.Variable{
+			Loc: op.loc,
+			Var: string(rune(op.tok)),
+		},
+		Args: []gollum.AST{lhs, rhs},
 	}
 }
