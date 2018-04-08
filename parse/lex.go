@@ -213,13 +213,13 @@ func extend(l, r gollum.Loc) gollum.Loc {
 	}
 }
 
-func arithmetic(lhs gollum.AST, op *tokenStruct, rhs gollum.AST) gollum.AST {
+func arithmetic(op *tokenStruct, args ...gollum.AST) gollum.AST {
 	return &gollum.Application{
-		Loc: extend(lhs.Location(), rhs.Location()),
+		Loc: extend(args[0].Location(), args[len(args)-1].Location()),
 		Func: &gollum.Variable{
 			Loc: op.loc,
 			Var: string(rune(op.tok)),
 		},
-		Args: []gollum.AST{lhs, rhs},
+		Args: args,
 	}
 }

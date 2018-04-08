@@ -50,11 +50,12 @@ var keywords = map[string]token{
 %token  <tok>           tokIdent
 %token  <tok>           tokArrow
 %token  <tok>           tokIntType
-%token  <tok>           ',' '(' ')' '{' '}' ':' '+' '-' '/' '*'
+%token  <tok>           ',' '(' ')' '{' '}' ':' '+' '-' '/' '*' '!'
 
 %right tokArrow
 %left '+' '-'
 %left '*' '/'
+%nonassoc '!'
 %nonassoc ','
 %nonassoc ')'
 
@@ -298,19 +299,23 @@ binding:
 arithmetic:
                 expression '-' expression
                 {
-                    $$ = arithmetic($1, $2, $3)
+                    $$ = arithmetic($2, $1, $3)
                 }
         |       expression '+' expression
                 {
-                    $$ = arithmetic($1, $2, $3)
+                    $$ = arithmetic($2, $1, $3)
                 }
         |       expression '/' expression
                 {
-                    $$ = arithmetic($1, $2, $3)
+                    $$ = arithmetic($2, $1, $3)
                 }
         |       expression '*' expression
                 {
-                    $$ = arithmetic($1, $2, $3)
+                    $$ = arithmetic($2, $1, $3)
+                }
+        |       '!' expression
+                {
+                    $$ = arithmetic($1, $2)
                 }
 
 %%
